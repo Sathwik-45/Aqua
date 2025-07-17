@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import Navbar from "./Navbar";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -17,109 +18,75 @@ const Register = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Handle registration logic here
     console.log("Registered data:", formData);
+    // Add registration logic here
   };
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center">
-      <div className="w-full max-w-md px-6 py-8  rounded-lg">
-                <img
-          src="/your-logo.png"
-          alt="Logo"
-          className="mx-auto w-24 h-24 object-contain"
-        />
-        <h2 className="text-2xl font-bold mb-6 text-center text-blue-600">Register</h2>
+       <div>
+<Navbar/>   
+   <div className="flex-1 bg-gray-50 flex items-center justify-center px-4 py-10 min-h-[calc(100vh-4rem)]">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-6">
+        {/* Logo */}
+        <div className="flex justify-center mb-6">
+          <img
+            src="/water.jpg"
+            alt="PureDrop Logo"
+            className="w-52 h-auto rounded-md"
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src =
+                "https://placehold.co/300x150/ADD8E6/000000?text=PureDrop+Logo";
+            }}
+          />
+        </div>
+
+        {/* Heading */}
+        <h2 className="text-3xl font-bold text-center text-blue-600 mb-6">
+          Register
+        </h2>
+
+        {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            
-            <label className="block mb-1 text-gray-700">Name</label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-400"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block mb-1 text-gray-700">Phone</label>
-            <input
-              type="tel"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-400"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block mb-1 text-gray-700">Email</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-400"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block mb-1 text-gray-700">Address</label>
-            <input
-              type="text"
-              name="address"
-              value={formData.address}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-400"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block mb-1 text-gray-700">Password</label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-400"
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block mb-1 text-gray-700">Confirm Password</label>
-            <input
-              type="password"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring focus:border-blue-400"
-              required
-            />
-          </div>
+          {[
+            { label: "Name", type: "text", name: "name" },
+            { label: "Phone", type: "tel", name: "phone" },
+            { label: "Email", type: "email", name: "email" },
+            { label: "Address", type: "text", name: "address" },
+            { label: "Password", type: "password", name: "password" },
+            { label: "Confirm Password", type: "password", name: "confirmPassword" },
+          ].map((field) => (
+            <div key={field.name}>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                {field.label}
+              </label>
+              <input
+                type={field.type}
+                name={field.name}
+                value={formData[field.name]}
+                onChange={handleChange}
+                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                required
+              />
+            </div>
+          ))}
 
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition duration-200"
+            className="w-full bg-blue-500 text-white font-semibold py-2 rounded-md hover:bg-blue-600 transition duration-200"
           >
             Register
           </button>
 
-          <div className="text-center text-sm text-gray-600">
+          <p className="text-center text-sm text-gray-600 mt-2">
             Already registered?{" "}
-            <Link to="/login" className="text-blue-500 hover:underline">
+            <Link to="/login" className="text-blue-500 hover:underline font-medium">
               Login
             </Link>
-          </div>
+          </p>
         </form>
       </div>
-    </div>
+    </div></div>
   );
 };
 
