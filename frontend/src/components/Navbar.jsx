@@ -43,7 +43,12 @@ const Navbar = () => {
 
       {/* Desktop Menu */}
       <ul className="hidden md:flex space-x-6 text-gray-700 font-medium ml-auto">
-        <li className="hover:text-blue-600 cursor-pointer">Home</li>
+        <li
+          onClick={() => navigate("/")}
+          className="hover:text-blue-600 cursor-pointer"
+        >
+          Home
+        </li>
         <li className="hover:text-blue-600 cursor-pointer">My Orders</li>
         <li className="hover:text-red-500 cursor-pointer">Logout</li>
       </ul>
@@ -57,7 +62,12 @@ const Navbar = () => {
         }`}
       >
         <ul className="flex flex-col space-y-4 p-4 text-gray-700 font-medium">
-          <li className="hover:text-blue-600 cursor-pointer">Home</li>
+          <li
+            onClick={() => navigate("/")}
+            className="hover:text-blue-600 cursor-pointer"
+          >
+            Home
+          </li>
           <li className="hover:text-blue-600 cursor-pointer">My Orders</li>
           <li className="hover:text-red-500 cursor-pointer">Logout</li>
         </ul>
