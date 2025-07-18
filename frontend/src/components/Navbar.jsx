@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Menu, ChevronUp } from "lucide-react"; // Changed X to ChevronUp
+import { Menu, LogIn, ChevronUp } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
@@ -34,10 +34,11 @@ const Navbar = () => {
       {/* Right: Login (mobile) */}
       <div className="md:hidden">
         <button
-          className="text-blue-600 font-medium hover:underline"
           onClick={handleLogin}
+          className="flex items-center gap-1 text-blue-600 font-medium hover:text-blue-800 transition duration-200"
         >
-          Login
+          <LogIn className="w-5 h-5" />
+          <span>Login</span>
         </button>
       </div>
 
