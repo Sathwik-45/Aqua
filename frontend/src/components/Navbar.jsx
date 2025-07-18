@@ -22,7 +22,7 @@ const Navbar = () => {
       <div className="md:hidden">
         <button
           className="text-blue-600 font-medium hover:underline"
-          onClick={handleLogin} // ✅ Trigger navigation
+          onClick={() => handleLogin()} // ✅ Trigger navigation
         >
           Login
         </button>
