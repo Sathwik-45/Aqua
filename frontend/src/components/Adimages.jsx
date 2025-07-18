@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 const AdCarousel = () => {
-  const images = ["/boy.jpg", "/girl.jpg", "/boy.jpg", "/girl.jpg"];
+  const images = ["/gay.png", "/girl.png", "/boy.png", "/girl.png"];
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
@@ -13,9 +13,9 @@ const AdCarousel = () => {
   }, [images.length]);
 
   return (
-    <div className="w-full flex flex-col items-center overflow-hidden py-6">
-      {/* Sliding Image Track */}
-      <div className="w-[600px] h-[550px] overflow-hidden rounded-lg shadow-md">
+    <div className="w-full flex flex-col items-center overflow-hidden py-8 px-4">
+      {/* Image container with responsive size */}
+      <div className="w-full max-w-xl md:max-w-2xl lg:max-w-4xl aspect-[4/3] overflow-hidden rounded-xl shadow-lg">
         <div
           className="flex transition-transform duration-700 ease-in-out"
           style={{ transform: `translateX(-${currentIndex * 100}%)` }}
@@ -25,7 +25,7 @@ const AdCarousel = () => {
               key={index}
               src={src}
               alt={`Ad ${index + 1}`}
-              className="w-[600px] h-[550px]  object-center flex-shrink-0"
+              className="w-full object-cover flex-shrink-0"
             />
           ))}
         </div>
