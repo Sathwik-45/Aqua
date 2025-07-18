@@ -13,7 +13,7 @@ const AdCarousel = () => {
   }, [images.length]);
 
   return (
-    <div className="w-full flex flex-col items-center overflow-hidden py-8 px-4">
+    <div className="w-full flex flex-col items-center overflow-hidden py-8 px-4 ">
       {/* Image container with responsive size */}
       <div className="w-full max-w-xl md:max-w-2xl lg:max-w-4xl aspect-[4/3] overflow-hidden rounded-xl shadow-lg">
         <div
