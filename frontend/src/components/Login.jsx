@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import Navbar from "./Navbar";
+import { Eye, EyeOff } from "lucide-react";
+import Navbar2 from "./Navbar2";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -21,9 +22,8 @@ const Login = () => {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Navbar />
+      <Navbar2 />
 
-      {/* Main Content: Adjust height to be full minus navbar (assumed h-16 = 4rem) */}
       <div className="flex-1 bg-gray-50 flex items-center justify-center px-4 py-10 min-h-[calc(100vh-4rem)]">
         <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-6">
           {/* Logo */}
@@ -66,7 +66,7 @@ const Login = () => {
               />
             </div>
 
-            <div>
+            <div className="relative">
               <label
                 htmlFor="password"
                 className="block text-sm font-medium text-gray-700 mb-1"
@@ -80,21 +80,15 @@ const Login = () => {
                 value={form.password}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                className="w-full px-4 py-2 pr-10 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
                 placeholder="Enter password"
               />
-            </div>
-
-            <div className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                id="showPassword"
-                checked={showPassword}
-                onChange={() => setShowPassword(!showPassword)}
-              />
-              <label htmlFor="showPassword" className="text-sm text-gray-700">
-                Show Password
-              </label>
+              <div
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute top-9 right-3 cursor-pointer text-gray-600"
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </div>
             </div>
 
             <button
