@@ -32,9 +32,6 @@ mongoose
   .then(() => console.log("✅ MongoDB connected"))
   .catch((err) => console.error("❌ MongoDB connection error:", err));
 
-const fetch = require("node-fetch"); // npm install node-fetch if not already
-const Owner = require("./models/Owner"); // Adjust this to your actual model path
-
 // Helper function to calculate distance using the Haversine formula
 function calculateDistance(lat1, lon1, lat2, lon2) {
   const toRadians = (degree) => (degree * Math.PI) / 180;
@@ -71,7 +68,9 @@ app.get("/api/owners", async (req, res) => {
       console.log(`\n🔍 Checking owner: ${owner.shopName}`);
       console.log(`📍 Location text: ${locationText}`);
 
-      // Convert text location to coordinates
+      // Use dynamic import for node-fetch (ESM compatible)
+      const fetch = (await import("node-fetch")).default;
+
       const geoRes = await fetch(
         `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
           locationText
@@ -93,7 +92,7 @@ app.get("/api/owners", async (req, res) => {
       const distance = calculateDistance(userLat, userLon, ownerLat, ownerLon);
       console.log(`📏 Distance from user: ${distance.toFixed(2)} km`);
 
-      if (distance <= 10) {
+      if (distance <= 15) {
         console.log("✅ Within 10 km - Added to result\n");
         nearbyOwners.push(owner);
       } else {
@@ -163,5 +162,5 @@ app.get("/api/login", async (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`🚀 Server running on http://localhost:${PORT}`);
 });
