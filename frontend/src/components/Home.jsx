@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Navbar from "./Navbar";
+import { useNavigate } from "react-router-dom";
+
 import {
   FaSearch,
   FaStar,
@@ -8,6 +10,7 @@ import {
 } from "react-icons/fa";
 
 const HomePage = () => {
+  const navigate = useNavigate();
   const [allWaterPlants, setAllWaterPlants] = useState([]);
   const [filteredWaterPlants, setFilteredWaterPlants] = useState([]);
   const [isLoadingPlants, setIsLoadingPlants] = useState(false);
@@ -22,26 +25,27 @@ const HomePage = () => {
     console.log("API Response:", data);
 
 
-    const formattedData = data.map((owner, index) => ({
-      id: index + 1,
-      src: owner.shopImage, // fix property name from shopPhoto → shopImage
-      alt: owner.shopName,
-      title: owner.shopName,
-      description: owner.description || "No description available",
-      ownerName: owner.ownerName,
-      address: owner.address,
-      city: owner.location || "Unknown", // location is a string now
-      rating: owner.rating || 4.0,
-    }));
-
-    setAllWaterPlants(formattedData);
-    setFilteredWaterPlants(formattedData);
-  } catch (error) {
-    console.error("Error fetching from backend:", error);
-  }
-  setIsLoadingPlants(false);
-}, []);
-
+      const formattedData = data.map((owner, index) => ({
+        _id:owner._id,
+        src: owner.shopImage,
+        alt: owner.shopName,
+        title: owner.shopName,
+        description: owner.description || "No description available",
+        ownerName: owner.ownerName,
+        address: owner.address,
+        city: owner.location.city,
+        state: owner.location.state,
+        latitude: owner.location.latitude,
+        longitude: owner.location.longitude,
+        rating: owner.rating || 4.0,
+      }));
+      setAllWaterPlants(formattedData);
+      setFilteredWaterPlants(formattedData);
+    } catch (error) {
+      console.error("Error fetching from backend:", error);
+    }
+    setIsLoadingPlants(false);
+  }, []);
 
   useEffect(() => {
     fetchWaterPlantsFromBackend();
@@ -88,13 +92,14 @@ const HomePage = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredWaterPlants.map((plant) => (
               <div
-                key={plant.id}
+                key={plant._id}
                 className="bg-white rounded-2xl shadow-md hover:shadow-lg transition p-4 flex flex-col"
               >
                 <img
-                  src={plant.src || "/placeholder.png"}
+                  src={plant.src}
                   alt={plant.alt || "Shop Image"}
                   className="rounded-xl h-40 object-cover mb-3"
+                   onClick={() => navigate(`/buynow/${plant._id}`)} 
                   onError={(e) => {
                     e.target.onerror = null;
                     e.target.src = "/placeholder.png";
