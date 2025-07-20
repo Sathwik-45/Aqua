@@ -1,14 +1,35 @@
 import React, { useState } from "react";
-import { Menu, LogIn, ChevronUp } from "lucide-react";
+import { Menu, LogIn, ChevronUp, UserCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
 const Navbar = () => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [username, setUsername] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
 
   const toggleMenu = () => setIsOpen(!isOpen);
 
   const handleLogin = () => navigate("/login");
+
+  const handleLogout = () => {
+    localStorage.clear();
+    setIsAuthenticated(false);
+    setUsername("");
+    navigate("/");
+    toggleMenu();
+  };
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const name = localStorage.getItem("userName");
+
+    if (token) {
+      setIsAuthenticated(true);
+      setUsername(name);
+    }
+  }, []);
 
   return (
     <nav className="bg-white shadow-md px-4 py-3 flex items-center justify-between relative z-50">
@@ -33,13 +54,19 @@ const Navbar = () => {
 
       {/* Right: Login (mobile) */}
       <div className="md:hidden">
-        <button
-          onClick={handleLogin}
-          className="flex items-center gap-1 text-blue-600 font-medium hover:text-blue-800 transition duration-200"
-        >
-          <LogIn className="w-5 h-5" />
-          <span>Login</span>
-        </button>
+        {isAuthenticated ? (
+          <button className="flex items-center gap-1 text-blue-600 font-medium hover:text-blue-800 transition duration-200">
+            <UserCircle className="w-6 h-6" />
+          </button>
+        ) : (
+          <button
+            onClick={handleLogin}
+            className="flex items-center gap-1 text-blue-600 font-medium hover:text-blue-800 transition duration-200"
+          >
+            <LogIn className="w-5 h-5" />
+            <span>Login</span>
+          </button>
+        )}
       </div>
 
       {/* Desktop Menu */}
@@ -51,7 +78,12 @@ const Navbar = () => {
           Home
         </li>
         <li className="hover:text-blue-600 cursor-pointer">My Orders</li>
-        <li className="hover:text-red-500 cursor-pointer">Logout</li>
+        <li
+          onClick={handleLogout}
+          className="hover:text-red-500 cursor-pointer transition duration-200"
+        >
+          Logout
+        </li>
       </ul>
 
       {/* Mobile Dropdown Menu */}
@@ -64,13 +96,29 @@ const Navbar = () => {
       >
         <ul className="flex flex-col space-y-4 p-4 text-gray-700 font-medium">
           <li
-            onClick={() => navigate("/")}
+            onClick={() => {
+              const token = localStorage.getItem("token");
+              if (token) {
+                navigate("/Home");
+                toggleMenu();
+              } else {
+                navigate("/");
+                toggleMenu();
+              }
+            }}
             className="hover:text-blue-600 cursor-pointer"
           >
             Home
           </li>
           <li className="hover:text-blue-600 cursor-pointer">My Orders</li>
-          <li className="hover:text-red-500 cursor-pointer">Logout</li>
+          {localStorage.getItem("token") && (
+            <li
+              onClick={handleLogout}
+              className="hover:text-red-500 cursor-pointer transition duration-200"
+            >
+              Logout
+            </li>
+          )}
         </ul>
       </div>
     </nav>
