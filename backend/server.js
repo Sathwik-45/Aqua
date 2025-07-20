@@ -32,12 +32,78 @@ mongoose
   .then(() => console.log("✅ MongoDB connected"))
   .catch((err) => console.error("❌ MongoDB connection error:", err));
 
+const fetch = require("node-fetch"); // npm install node-fetch if not already
+const Owner = require("./models/Owner"); // Adjust this to your actual model path
+
+// Helper function to calculate distance using the Haversine formula
+function calculateDistance(lat1, lon1, lat2, lon2) {
+  const toRadians = (degree) => (degree * Math.PI) / 180;
+  const R = 6371; // Radius of Earth in km
+
+  const dLat = toRadians(lat2 - lat1);
+  const dLon = toRadians(lon2 - lon1);
+
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRadians(lat1)) *
+      Math.cos(toRadians(lat2)) *
+      Math.sin(dLon / 2) ** 2;
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
 app.get("/api/owners", async (req, res) => {
+  const userLat = parseFloat(req.query.lat);
+  const userLon = parseFloat(req.query.lon);
+
+  if (!userLat || !userLon) {
+    return res.status(400).json({ error: "Latitude and longitude required" });
+  }
+
   try {
     const owners = await Owner.find();
-    res.json(owners);
-  } catch (err) {
-    console.error("Error fetching owners:", err);
+    const nearbyOwners = [];
+
+    for (const owner of owners) {
+      const locationText = owner.location || owner.city || owner.address;
+
+      console.log(`\n🔍 Checking owner: ${owner.shopName}`);
+      console.log(`📍 Location text: ${locationText}`);
+
+      // Convert text location to coordinates
+      const geoRes = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+          locationText
+        )}`
+      );
+      const geoData = await geoRes.json();
+
+      if (!geoData.length) {
+        console.log("❌ Location not found in geocoding.");
+        continue;
+      }
+
+      const ownerLat = parseFloat(geoData[0].lat);
+      const ownerLon = parseFloat(geoData[0].lon);
+
+      console.log(`🌍 Owner coordinates: lat=${ownerLat}, lon=${ownerLon}`);
+      console.log(`📌 User coordinates:  lat=${userLat}, lon=${userLon}`);
+
+      const distance = calculateDistance(userLat, userLon, ownerLat, ownerLon);
+      console.log(`📏 Distance from user: ${distance.toFixed(2)} km`);
+
+      if (distance <= 10) {
+        console.log("✅ Within 10 km - Added to result\n");
+        nearbyOwners.push(owner);
+      } else {
+        console.log("🚫 Too far - Skipped\n");
+      }
+    }
+
+    res.json(nearbyOwners);
+  } catch (error) {
+    console.error("❗ Error fetching owners:", error);
     res.status(500).json({ error: "Failed to fetch owners" });
   }
 });
@@ -81,7 +147,15 @@ app.get("/api/login", async (req, res) => {
       expiresIn: "1h",
     });
 
-    res.json({ message: "Login successful", token, user: { name: user.name } });
+    res.json({
+      message: "Login successful",
+      token,
+      user: {
+        name: user.name,
+        phone: user.phone,
+      },
+    });
+    console.log("user", user);
   } catch (err) {
     console.error("Login error:", err);
     res.status(500).json({ message: "Server error" });
