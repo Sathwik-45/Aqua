@@ -30,7 +30,8 @@ mongoose
   })
   .then(() => console.log("✅ MongoDB connected"))
   .catch((err) => console.error("❌ MongoDB connection error:", err));
-
+const ownerRoutes = require('./owner'); // Adjust path if needed
+app.use('/api/owners', ownerRoutes);
 app.post("/api/register", async (req, res) => {
   const formData = req.body;
 
