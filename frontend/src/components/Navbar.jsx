@@ -18,6 +18,7 @@ const Navbar = () => {
     setIsAuthenticated(false);
     setUsername("");
     navigate("/");
+    toggleMenu();
   };
 
   useEffect(() => {
@@ -95,18 +96,29 @@ const Navbar = () => {
       >
         <ul className="flex flex-col space-y-4 p-4 text-gray-700 font-medium">
           <li
-            onClick={() => navigate("/")}
+            onClick={() => {
+              const token = localStorage.getItem("token");
+              if (token) {
+                navigate("/Home");
+                toggleMenu();
+              } else {
+                navigate("/");
+                toggleMenu();
+              }
+            }}
             className="hover:text-blue-600 cursor-pointer"
           >
             Home
           </li>
           <li className="hover:text-blue-600 cursor-pointer">My Orders</li>
-          <li
-            onClick={handleLogout}
-            className="hover:text-red-500 cursor-pointer transition duration-200"
-          >
-            Logout
-          </li>
+          {localStorage.getItem("token") && (
+            <li
+              onClick={handleLogout}
+              className="hover:text-red-500 cursor-pointer transition duration-200"
+            >
+              Logout
+            </li>
+          )}
         </ul>
       </div>
     </nav>

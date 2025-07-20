@@ -70,7 +70,7 @@ const Login = () => {
         localStorage.setItem("userName", data.user.name);
         setMessage("Login successful!");
         setMessageType("success");
-        navigate("/");
+        navigate("/Home");
 
         console.log("User:", data.user);
       } else {
