@@ -66,7 +66,9 @@ const Login = () => {
       const data = await response.json();
 
       if (response.ok) {
+        console.log("data", data);
         localStorage.setItem("token", data.token);
+        localStorage.setItem("phone", data.user.phone); // ✅ fixed
         localStorage.setItem("userName", data.user.name);
         setMessage("Login successful!");
         setMessageType("success");

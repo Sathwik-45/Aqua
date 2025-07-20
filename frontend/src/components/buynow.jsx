@@ -6,133 +6,153 @@ import {
   FaStar,
   FaPlus,
   FaMinus,
-  FaTint,
-  FaBoxOpen,
 } from "react-icons/fa";
+
+// Prices per item
+const ITEM_PRICES = {
+  waterTins: 20,
+  coolingWaterTins: 30,
+  waterBottles: 10,
+  waterPackers: 200,
+};
 
 const BuyNowPage = () => {
   const { id } = useParams();
   const [plant, setPlant] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [tins, setTins] = useState(0);
-  const [packs, setPacks] = useState(0);
+  const [order, setOrder] = useState({});
 
   useEffect(() => {
     const fetchPlant = async () => {
       try {
-        const response = await fetch(`http://localhost:5000/api/owners`);
-        const data = await response.json();
-
-        const selectedPlant = data.find((item) => String(item._id) === id);
-        setPlant(selectedPlant);
-      } catch (error) {
-        console.error("Error fetching plant:", error);
+        const res = await fetch("http://localhost:5000/api/owners");
+        const data = await res.json();
+        const selected = data.find((item) => String(item._id) === String(id));
+        if (selected) {
+          // initialize order only for available stock
+          const initialOrder = {};
+          Object.entries(selected.stock || {}).forEach(([key, value]) => {
+            if (value === true) {
+              initialOrder[key] = 0;
+            }
+          });
+          setOrder(initialOrder);
+          setPlant(selected);
+        } else {
+          setPlant(null);
+        }
+      } catch (err) {
+        console.error("Fetch error:", err);
+        setPlant(null);
       } finally {
         setLoading(false);
       }
     };
-
     fetchPlant();
   }, [id]);
 
+  const handleQtyChange = (key, type) => {
+    setOrder((prev) => ({
+      ...prev,
+      [key]: type === "inc" ? prev[key] + 1 : Math.max(prev[key] - 1, 0),
+    }));
+  };
+
+
+  const totalAmount = Object.entries(order).reduce((total, [key, qty]) => {
+  return total + qty * (ITEM_PRICES[key] || 0);
+}, 0);
+
   const handleBuyNow = () => {
-    alert(
-      `✅ Order Placed!\n\n🧊 ${tins} Water Tin(s)\n🧴 ${packs} Bottle Pack(s)\n\n📍 From: ${plant.shopName}`
-    );
+    const summary = Object.entries(order)
+      .filter(([_, val]) => val > 0)
+      .map(([key, val]) => {
+        const name = key.replace(/([A-Z])/g, " $1");
+        const total = val * ITEM_PRICES[key];
+        return `${val} x ${name} = ₹${total}`;
+      })
+      .join("\n");
+
+    if (!summary) return alert("Please select at least one item to order.");
+
+    alert(`Order Placed!\n\n${summary}\n\nTotal: ₹${totalAmount}\nFrom: ${plant.shopName}`);
   };
 
-  const handleChange = (setter, value) => {
-    setter((prev) => Math.max(0, prev + value));
-  };
-
-  if (loading) return <div className="text-center mt-10">Loading...</div>;
+  if (loading)
+    return <div className="text-center text-lg text-gray-500 mt-10">Loading...</div>;
 
   if (!plant)
     return (
-      <div className="text-center mt-10 text-red-600">
-        ❌ Water Plant not found
-      </div>
+      <div className="text-center text-red-600 mt-10">Water Plant not found</div>
     );
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-2xl mt-8">
-      {/* Image */}
       <img
         src={plant.shopPhoto || "/placeholder.png"}
         alt={plant.shopName}
-        className="w-full h-64 object-cover rounded-xl mb-4"
         onError={(e) => (e.target.src = "/placeholder.png")}
+        className="w-full h-64 object-cover rounded-xl mb-4"
       />
 
-      {/* Shop Details */}
-      <h1 className="text-3xl font-bold text-blue-700 mb-1">{plant.shopName}</h1>
-      <p className="text-gray-700 flex items-center gap-2">
-        <FaUser className="text-blue-400" /> {plant.ownerName}
-      </p>
-      <p className="text-gray-700 flex items-center gap-2">
-        <FaMapMarkerAlt className="text-blue-400" /> {plant.address},{" "}
-        {plant.location}
-      </p>
-      <p className="text-yellow-500 flex items-center gap-1 mt-1">
-        <FaStar /> {plant.rating || "No rating"}
-      </p>
-
-      {/* Order Section */}
-      <div className="mt-6 space-y-6">
-        {/* Water Tins */}
-        <div>
-          <label className="block text-gray-800 font-semibold mb-2 flex items-center gap-2">
-            <FaTint className="text-blue-600" />
-            Water Tins (20L)
-          </label>
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => handleChange(setTins, -1)}
-              className="bg-gray-200 hover:bg-gray-300 text-gray-800 p-2 rounded-full"
-            >
-              <FaMinus />
-            </button>
-            <span className="text-xl font-semibold">{tins}</span>
-            <button
-              onClick={() => handleChange(setTins, 1)}
-              className="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full"
-            >
-              <FaPlus />
-            </button>
-          </div>
-        </div>
-
-        {/* Bottle Packs */}
-        <div>
-          <label className="block text-gray-800 font-semibold mb-2 flex items-center gap-2">
-            <FaBoxOpen className="text-green-600" />
-            Bottle Packs (1L x 12)
-          </label>
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => handleChange(setPacks, -1)}
-              className="bg-gray-200 hover:bg-gray-300 text-gray-800 p-2 rounded-full"
-            >
-              <FaMinus />
-            </button>
-            <span className="text-xl font-semibold">{packs}</span>
-            <button
-              onClick={() => handleChange(setPacks, 1)}
-              className="bg-green-600 hover:bg-green-700 text-white p-2 rounded-full"
-            >
-              <FaPlus />
-            </button>
-          </div>
-        </div>
-
-        {/* Buy Now Button */}
-        <button
-          onClick={handleBuyNow}
-          className="w-full mt-6 bg-blue-600 text-white py-3 rounded-xl font-bold text-lg hover:bg-blue-700 transition duration-300"
-        >
-          Buy Now
-        </button>
+      <h1 className="text-2xl font-bold text-blue-700">{plant.shopName}</h1>
+      <div className="text-gray-600 flex items-center mt-1">
+        <FaMapMarkerAlt className="mr-2 text-blue-500" />
+        {plant.address}
       </div>
+      <div className="flex items-center text-sm mt-1 text-gray-600">
+        <FaUser className="mr-1" />
+        Owner: {plant.ownerName}
+      </div>
+      <div className="flex items-center text-sm text-yellow-500 mt-1">
+        <FaStar className="mr-1" />
+        4.5 (Ratings placeholder)
+      </div>
+
+      {/* Render only stock items that are true */}
+      <div className="mt-6">
+        {Object.entries(order).map(([item, qty]) => (
+          <div
+            key={item}
+            className="flex justify-between items-center border p-3 rounded-lg mb-3"
+          >
+            <div>
+              <div className="capitalize text-gray-800 font-medium">
+                {item.replace(/([A-Z])/g, " $1")}
+              </div>
+              <div className="text-sm text-gray-500">
+                ₹{ITEM_PRICES[item] || 0} each
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => handleQtyChange(item, "dec")}
+                className="bg-gray-200 px-2 py-1 rounded hover:bg-gray-300"
+              >
+                <FaMinus />
+              </button>
+              <span className="text-lg font-semibold">{qty}</span>
+              <button
+                onClick={() => handleQtyChange(item, "inc")}
+                className="bg-blue-500 px-2 py-1 text-white rounded hover:bg-blue-600"
+              >
+                <FaPlus />
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="text-right mt-4 text-lg font-semibold text-blue-700">
+        Total: ₹{totalAmount}
+      </div>
+
+      <button
+        onClick={handleBuyNow}
+        className="w-full mt-6 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700"
+      >
+        Buy Now
+      </button>
     </div>
   );
 };
