@@ -1,9 +1,11 @@
 // backend/server.js
 const express = require("express");
 const cors = require("cors");
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
+const SECRET_KEY = process.env.JWT_SECRET;
 
 const User = require("./models/user");
-require("dotenv").config();
 
 const app = express();
 const PORT = 5000;
@@ -19,7 +21,6 @@ app.use(
 app.use(express.json());
 
 const mongoose = require("mongoose");
-
 const MONGO_URI = process.env.MONGO_URI;
 
 mongoose
@@ -44,6 +45,35 @@ app.post("/api/register", async (req, res) => {
   } catch (err) {
     console.error("Error saving user:", err);
     res.status(500).json({ error: "Registration failed" });
+  }
+});
+
+app.get("/api/login", async (req, res) => {
+  const { phone, password } = req.query;
+
+  if (!phone || !password) {
+    return res.status(400).json({ message: "Phone and password required" });
+  }
+
+  try {
+    const user = await User.findOne({ phone });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (user.password !== password) {
+      return res.status(401).json({ message: "Invalid password" });
+    }
+
+    const token = jwt.sign({ userId: user._id, name: user.name }, SECRET_KEY, {
+      expiresIn: "1h",
+    });
+
+    res.json({ message: "Login successful", token, user: { name: user.name } });
+  } catch (err) {
+    console.error("Login error:", err);
+    res.status(500).json({ message: "Server error" });
   }
 });
 
