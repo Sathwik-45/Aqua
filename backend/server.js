@@ -71,7 +71,16 @@ app.get("/api/login", async (req, res) => {
       expiresIn: "1h",
     });
 
-    res.json({ message: "Login successful", token, user: { name: user.name } });
+   res.json({ 
+  message: "Login successful", 
+  token, 
+  user: { 
+    name: user.name, 
+    phone: user.phone 
+  } 
+});
+console.log("user",user);
+
   } catch (err) {
     console.error("Login error:", err);
     res.status(500).json({ message: "Server error" });
