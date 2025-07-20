@@ -58,6 +58,7 @@ app.get("/api/login", async (req, res) => {
 
   try {
     const user = await User.findOne({ phone });
+    console.log("get user details",user);
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -67,9 +68,11 @@ app.get("/api/login", async (req, res) => {
       return res.status(401).json({ message: "Invalid password" });
     }
 
-    const token = jwt.sign({ userId: user._id, name: user.name }, SECRET_KEY, {
-      expiresIn: "1h",
-    });
+const token = jwt.sign(
+  { userId: user._id, name: user.name, phone: user.phone },
+  SECRET_KEY,
+  { expiresIn: "1h" }
+);
 
    res.json({ 
   message: "Login successful", 
@@ -79,13 +82,31 @@ app.get("/api/login", async (req, res) => {
     phone: user.phone 
   } 
 });
-console.log("user",user);
+
 
   } catch (err) {
     console.error("Login error:", err);
     res.status(500).json({ message: "Server error" });
   }
 });
+
+
+// Example route in Express
+app.get('/api/customers/:phone', async (req, res) => {
+  const phone = req.params.phone;
+  try {
+    const customer = await User.findOne({ phone }); // Make sure `phone` is the correct field
+    if (!customer) {
+      return res.status(404).json({ message: 'Customer not found' });
+    }
+    res.json(customer);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

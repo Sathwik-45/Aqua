@@ -55,9 +55,20 @@ const Navbar = () => {
       {/* Right: Login (mobile) */}
       <div className="md:hidden">
         {isAuthenticated ? (
-          <button className="flex items-center gap-1 text-blue-600 font-medium hover:text-blue-800 transition duration-200">
-            <UserCircle className="w-6 h-6" />
-          </button>
+          <button
+    onClick={() => {
+      const token = localStorage.getItem("token");
+      if (token) {
+        navigate("/profile");
+        toggleMenu();
+      } else {
+        alert("Please log in to view your profile.");
+      }
+    }}
+    className="flex items-center gap-1 text-blue-600 font-medium hover:text-blue-800 transition duration-200"
+  >
+    <UserCircle className="w-6 h-6" />
+  </button>
         ) : (
           <button
             onClick={handleLogin}

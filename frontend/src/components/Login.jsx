@@ -1,27 +1,31 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { Eye, EyeOff } from "lucide-react";
-import { X, CheckCircle, XCircle } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { Eye, EyeOff, X, CheckCircle, XCircle } from "lucide-react";
 import { jwtDecode } from "jwt-decode";
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-
 import Navbar2 from "./Navbar2";
 
 const Login = () => {
+  const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
+  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState(""); // "success" or "error"
+  const [form, setForm] = useState({
+    name: "",
+    password: "",
+  });
+
+  // ✅ Check token on load
   useEffect(() => {
     const token = localStorage.getItem("token");
 
     if (token) {
       try {
         const decoded = jwtDecode(token);
-
-        // Check if token is still valid
         const currentTime = Date.now() / 1000;
+
         if (decoded.exp > currentTime) {
           navigate("/");
         } else {
-          // Token expired
           localStorage.removeItem("token");
           localStorage.removeItem("userName");
         }
@@ -31,27 +35,22 @@ const Login = () => {
         localStorage.removeItem("userName");
       }
     }
-  }, []);
-
-  const navigate = useNavigate();
-  const [showPassword, setShowPassword] = useState(false);
-  const [message, setMessage] = useState("");
-  const [messageType, setMessageType] = useState(""); // "success" or "error"
-
-  const [form, setForm] = useState({
-    name: "",
-    password: "",
-  });
+  }, [navigate]);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+
+
+
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const { name, password } = form;
 
-    console.log("Login data:", form);
+
 
     try {
       const response = await fetch(
@@ -64,17 +63,15 @@ const Login = () => {
       );
 
       const data = await response.json();
+      console.log(data);
 
       if (response.ok) {
-        console.log("data", data);
         localStorage.setItem("token", data.token);
-        localStorage.setItem("phone", data.user.phone); // ✅ fixed
+        localStorage.setItem("phone", form.name || "");
         localStorage.setItem("userName", data.user.name);
         setMessage("Login successful!");
         setMessageType("success");
         navigate("/Home");
-
-        console.log("User:", data.user);
       } else {
         setMessage(data.message || "Login failed");
         setMessageType("error");
@@ -91,7 +88,7 @@ const Login = () => {
 
       <div className="flex-1 bg-gray-50 flex items-center justify-center px-4 py-10 min-h-[calc(100vh-4rem)]">
         <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-6">
-          {/* Message Box - moved inside the card above logo */}
+          {/* ✅ Message Box */}
           {message && (
             <div
               className={`mb-4 w-full rounded-lg p-3 px-4 text-sm flex items-start justify-between gap-2 shadow-sm transition-all duration-300 ${
@@ -108,8 +105,6 @@ const Login = () => {
                 )}
                 <p>{message}</p>
               </div>
-
-              {/* Close Button */}
               <button
                 onClick={() => setMessage("")}
                 className="text-gray-400 hover:text-gray-700 transition"
@@ -146,7 +141,7 @@ const Login = () => {
                 htmlFor="name"
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
-                Username
+                Phone Number
               </label>
               <input
                 type="text"
@@ -156,7 +151,7 @@ const Login = () => {
                 onChange={handleChange}
                 required
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
-                placeholder="Enter Phone"
+                placeholder="Enter 10-digit phone"
               />
             </div>
 
