@@ -16,12 +16,30 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+  // ✅ Phone validation function (only digits, exactly 10 numbers)
+  const validatePhone = (phone) => {
+    return /^\d{10}$/.test(phone);
+  };
+
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // ✅ Phone validation check
+    if (!validatePhone(formData.phone)) {
+      alert("Please enter a valid 10-digit phone number (digits only).");
+      return;
+    }
+
+    // ✅ Password match check
+    if (formData.password !== formData.confirmPassword) {
+      alert("Passwords do not match.");
+      return;
+    }
+
     console.log("Registered data:", formData);
 
     try {
@@ -39,7 +57,7 @@ const Register = () => {
       if (response.ok) {
         alert("Registration successful!");
       } else {
-        alert("Registration failed.");
+        alert(result.message || "Registration failed.");
       }
     } catch (error) {
       console.error("Error during fetch:", error);
@@ -134,14 +152,12 @@ const Register = () => {
                 />
                 <button
                   type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  onClick={() =>
+                    setShowConfirmPassword(!showConfirmPassword)
+                  }
                   className="absolute inset-y-0 right-3 flex items-center text-sm text-gray-600"
                 >
-                  {showConfirmPassword ? (
-                    <EyeOff size={20} />
-                  ) : (
-                    <Eye size={20} />
-                  )}
+                  {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
               </div>
             </div>

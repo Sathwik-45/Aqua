@@ -33,7 +33,6 @@ mongoose
   .catch((err) => console.error("❌ MongoDB connection error:", err));
 
 const fetch = require("node-fetch"); // npm install node-fetch if not already
-const Owner = require("./models/Owner"); // Adjust this to your actual model path
 
 // Helper function to calculate distance using the Haversine formula
 function calculateDistance(lat1, lon1, lat2, lon2) {
@@ -52,6 +51,22 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c;
 }
+
+app.get("/api/owner/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const owner = await Owner.findById(id);
+    if (!owner) {
+      return res.status(404).json({ error: "Owner not found" });
+    }
+
+    res.json(owner);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
 
 app.get("/api/owners", async (req, res) => {
   const userLat = parseFloat(req.query.lat);
@@ -93,7 +108,7 @@ app.get("/api/owners", async (req, res) => {
       const distance = calculateDistance(userLat, userLon, ownerLat, ownerLon);
       console.log(`📏 Distance from user: ${distance.toFixed(2)} km`);
 
-      if (distance <= 10) {
+      if (distance <= 15) {
         console.log("✅ Within 10 km - Added to result\n");
         nearbyOwners.push(owner);
       } else {
@@ -134,6 +149,7 @@ app.get("/api/login", async (req, res) => {
 
   try {
     const user = await User.findOne({ phone });
+    console.log("get user details", user);
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -143,9 +159,11 @@ app.get("/api/login", async (req, res) => {
       return res.status(401).json({ message: "Invalid password" });
     }
 
-    const token = jwt.sign({ userId: user._id, name: user.name }, SECRET_KEY, {
-      expiresIn: "1h",
-    });
+    const token = jwt.sign(
+      { userId: user._id, name: user.name, phone: user.phone },
+      SECRET_KEY,
+      { expiresIn: "1h" }
+    );
 
     res.json({
       message: "Login successful",
@@ -155,9 +173,23 @@ app.get("/api/login", async (req, res) => {
         phone: user.phone,
       },
     });
-    console.log("user", user);
   } catch (err) {
     console.error("Login error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+// Example route in Express
+app.get("/api/customers/:phone", async (req, res) => {
+  const phone = req.params.phone;
+  try {
+    const customer = await User.findOne({ phone }); // Make sure `phone` is the correct field
+    if (!customer) {
+      return res.status(404).json({ message: "Customer not found" });
+    }
+    res.json(customer);
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ message: "Server error" });
   }
 });
