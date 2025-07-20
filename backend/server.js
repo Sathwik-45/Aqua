@@ -6,6 +6,7 @@ require("dotenv").config();
 const SECRET_KEY = process.env.JWT_SECRET;
 
 const User = require("./models/user");
+const Owner = require("./models/Owners");
 
 const app = express();
 const PORT = 5000;
@@ -30,8 +31,17 @@ mongoose
   })
   .then(() => console.log("✅ MongoDB connected"))
   .catch((err) => console.error("❌ MongoDB connection error:", err));
-const ownerRoutes = require("./owner"); // Adjust path if needed
-app.use("/api/owners", ownerRoutes);
+
+app.get("/api/owners", async (req, res) => {
+  try {
+    const owners = await Owner.find();
+    res.json(owners);
+  } catch (err) {
+    console.error("Error fetching owners:", err);
+    res.status(500).json({ error: "Failed to fetch owners" });
+  }
+});
+
 app.post("/api/register", async (req, res) => {
   const formData = req.body;
 

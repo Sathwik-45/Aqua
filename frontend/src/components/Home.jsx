@@ -51,7 +51,6 @@ const HomePage = () => {
     fetchWaterPlantsFromBackend();
   }, [fetchWaterPlantsFromBackend]);
 
-  // ...existing code...
   useEffect(() => {
     const filtered = allWaterPlants.filter(
       (plant) =>
