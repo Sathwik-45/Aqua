@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import Navbar from "./Navbar";
 import {
   FaMapMarkerAlt,
   FaUser,
@@ -100,7 +101,8 @@ const BuyNowPage = () => {
     );
 
   return (
-    <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-2xl mt-8">
+    <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-2xl mt-1">
+     <Navbar/>
       <img
         src={plant.shopImage || "/placeholder.png"}
         alt={plant.shopName}

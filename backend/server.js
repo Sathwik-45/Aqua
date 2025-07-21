@@ -4,7 +4,6 @@ const cors = require("cors");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const SECRET_KEY = process.env.JWT_SECRET;
-
 const User = require("./models/user");
 const Owner = require("./models/Owners");
 const Order = require("./models/order");
@@ -15,7 +14,7 @@ const PORT = 5000;
 app.use(
   cors({
     origin: "http://localhost:5173",
-    methods: ["GET", "POST"],
+    methods: ["GET", "POST", "PUT", "OPTIONS"],
     credentials: true,
   })
 );
@@ -109,7 +108,7 @@ app.get("/api/owners", async (req, res) => {
       const distance = calculateDistance(userLat, userLon, ownerLat, ownerLon);
       console.log(`📏 Distance from user: ${distance.toFixed(2)} km`);
 
-      if (distance <= 600) {
+      if (distance <= 1500) {
         console.log("✅ Within 10 km - Added to result\n");
         nearbyOwners.push(owner);
       } else {
@@ -215,6 +214,27 @@ app.get("/api/login", async (req, res) => {
   } catch (err) {
     console.error("Login error:", err);
     res.status(500).json({ message: "Server error" });
+  }
+});
+
+app.put("/api/users/:phone", async (req, res) => {
+  try {
+    const { name, phone: newPhone } = req.body;
+    const { phone } = req.params;
+
+    const updatedUser = await User.findOneAndUpdate(
+      { phone },
+      { name, phone: newPhone },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json(updatedUser);
+  } catch (error) {
+    res.status(500).json({ message: "Error updating profile", error });
   }
 });
 
