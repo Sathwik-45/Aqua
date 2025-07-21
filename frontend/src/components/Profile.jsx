@@ -4,17 +4,26 @@ import { Mail, Phone, MapPin, CalendarDays } from "lucide-react";
 
 const Profile = () => {
   const [user, setUser] = useState(null);
+  const [editMode, setEditMode] = useState(false);
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [message, setMessage] = useState("");
+  const [avatarSeed, setAvatarSeed] = useState("");
 
   useEffect(() => {
+    const randomSeed = Math.random().toString(36).substring(2, 10);
+    setAvatarSeed(randomSeed);
+
     const fetchUser = async () => {
       try {
-        const phone = localStorage.getItem("phone");
-        const res = await fetch(`http://localhost:5000/api/customers/${phone}`);
-
+        const storedPhone = localStorage.getItem("phone");
+        const res = await fetch(`http://localhost:5000/api/customers/${storedPhone}`);
         if (!res.ok) throw new Error("Failed to fetch user");
-
         const data = await res.json();
         setUser(data);
+        setName(data.name);
+        setPhone(data.phone);
       } catch (error) {
         console.error("Fetch error:", error);
       }
@@ -23,52 +32,157 @@ const Profile = () => {
     fetchUser();
   }, []);
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-100 to-white">
+  const handleUpdate = async () => {
+    setIsUpdating(true);
+    try {
+      const res = await fetch(`http://localhost:5000/api/users/${user.phone}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, phone }),
+      });
+
+      if (!res.ok) throw new Error("Update failed");
+      const updatedUser = await res.json();
+      setUser(updatedUser);
+      localStorage.setItem("phone", updatedUser.phone); // update local storage if phone is changed
+      setMessage("Profile updated successfully!");
+      setEditMode(false);
+    } catch (error) {
+      console.error("Update error:", error);
+      setMessage("Failed to update profile.");
+    }
+    setIsUpdating(false);
+  };
+
+ return (
+    <div className="min-h-screen bg-gradient-to-br from-sky-50 to-white">
       <Navbar />
       <div className="flex justify-center items-center py-12 px-4">
         {user ? (
-          <div className="w-full max-w-2xl bg-white shadow-2xl rounded-3xl overflow-hidden flex flex-col md:flex-row">
+          <div className="w-full max-w-4xl bg-white shadow-xl border border-blue-100 rounded-3xl overflow-hidden grid md:grid-cols-3">
             
-            {/* Left: Profile Pic */}
-            <div className="bg-blue-500 w-full md:w-1/3 flex flex-col items-center justify-center p-6 text-white">
+            {/* Left Panel: Avatar */}
+            <div className="bg-gradient-to-b from-blue-50 to-white p-8 flex flex-col items-center justify-center border-r border-blue-100">
               <img
-                className="w-28 h-28 rounded-full border-4 border-white shadow-lg"
-                src={`https://api.dicebear.com/7.x/initials/svg?seed=${user.name}`}
-                alt="Profile"
+                className="w-32 h-32 rounded-full border-4 border-blue-200 shadow-md"
+                src={`https://api.dicebear.com/7.x/thumbs/svg?seed=${avatarSeed}`}
+                alt="Profile Avatar"
               />
-              <h2 className="mt-4 text-xl font-bold">{user.name}</h2>
-              <p className="text-sm">Customer Profile</p>
+              <h2 className="mt-4 text-xl font-semibold text-gray-800">{user.name}</h2>
+              <p className="text-sm text-gray-500">Member since {new Date(user.createdAt).toLocaleDateString()}</p>
             </div>
 
-            {/* Right: Details */}
-            <div className="w-full md:w-2/3 p-6 space-y-4">
-              <h3 className="text-2xl font-semibold text-gray-800 mb-2">Profile Details</h3>
-              <div className="space-y-3 text-gray-700 text-base">
-                <div className="flex items-center gap-2">
-                  <Phone size={20} className="text-blue-500" />
-                  <span>{user.phone}</span>
+            {/* Right Panel: Details */}
+            <div className="col-span-2 p-8">
+              <h3 className="text-2xl font-semibold text-blue-700 mb-6 border-b pb-2">
+                Profile Details
+              </h3>
+
+              {message && (
+                <div className="mb-4 text-sm text-green-600 font-medium">
+                  {message}
                 </div>
-                <div className="flex items-center gap-2">
-                  <Mail size={20} className="text-blue-500" />
-                  <span>{user.email}</span>
+              )}
+
+              <div className="space-y-5">
+                {/* Name Field */}
+                <div className="flex items-start gap-4">
+                  <label className="w-28 text-blue-600 font-medium pt-2">Name:</label>
+                  {editMode ? (
+                    <input
+                      className="border border-gray-300 p-2 rounded w-full max-w-md shadow-sm"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                    />
+                  ) : (
+                    <span className="text-gray-800 pt-2">{user.name}</span>
+                  )}
                 </div>
-                <div className="flex items-center gap-2">
-                  <MapPin size={20} className="text-blue-500" />
-                  <span>{user.address}</span>
+
+                {/* Phone Field */}
+                <div className="flex items-start gap-4">
+                  <label className="w-28 text-blue-600 font-medium pt-2 flex items-center gap-2">
+                    <Phone size={16} /> Phone:
+                  </label>
+                  {editMode ? (
+                    <input
+                      className="border border-gray-300 p-2 rounded w-full max-w-md shadow-sm"
+                      value={phone}
+                      onChange={(e) => setPhone(e.target.value)}
+                    />
+                  ) : (
+                    <span className="text-gray-800 pt-2">{user.phone}</span>
+                  )}
                 </div>
-                <div className="flex items-center gap-2">
-                  <CalendarDays size={20} className="text-blue-500" />
-                  <span>
-                    <strong>Joined:</strong> {new Date(user.createdAt).toLocaleDateString()}
+
+                {/* Email */}
+                <div className="flex items-start gap-4">
+                  <label className="w-28 text-blue-600 font-medium pt-2 flex items-center gap-2">
+                    <Mail size={16} /> Email:
+                  </label>
+                  <span className="text-gray-800 pt-2">{user.email}</span>
+                </div>
+
+                {/* Address */}
+                <div className="flex items-start gap-4">
+                  <label className="w-28 text-blue-600 font-medium pt-2 flex items-center gap-2">
+                    <MapPin size={16} /> Address:
+                  </label>
+                  <span className="text-gray-800 pt-2">{user.address}</span>
+                </div>
+
+                {/* Update Dates */}
+                <div className="flex items-start gap-4">
+                  <label className="w-28 text-blue-600 font-medium pt-2 flex items-center gap-2">
+                    <CalendarDays size={16} /> Joined:
+                  </label>
+                  <span className="text-gray-800 pt-2">
+                    {new Date(user.createdAt).toLocaleDateString()}
                   </span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <CalendarDays size={20} className="text-blue-500" />
-                  <span>
-                    <strong>Last Update:</strong> {new Date(user.updatedAt).toLocaleDateString()}
+
+                <div className="flex items-start gap-4">
+                  <label className="w-28 text-blue-600 font-medium pt-2 flex items-center gap-2">
+                    <CalendarDays size={16} /> Updated:
+                  </label>
+                  <span className="text-gray-800 pt-2">
+                    {new Date(user.updatedAt).toLocaleDateString()}
                   </span>
                 </div>
+              </div>
+
+              {/* Buttons */}
+              <div className="mt-8 flex gap-4">
+                {editMode ? (
+                  <>
+                    <button
+                      className="bg-blue-600 text-white px-5 py-2 rounded hover:bg-blue-700 transition"
+                      onClick={handleUpdate}
+                      disabled={isUpdating}
+                    >
+                      {isUpdating ? "Saving..." : "Save"}
+                    </button>
+                    <button
+                      className="bg-gray-300 px-5 py-2 rounded hover:bg-gray-400 transition"
+                      onClick={() => {
+                        setEditMode(false);
+                        setName(user.name);
+                        setPhone(user.phone);
+                      }}
+                    >
+                      Cancel
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    className="bg-blue-500 text-white px-5 py-2 rounded hover:bg-blue-600 transition"
+                    onClick={() => setEditMode(true)}
+                  >
+                    Edit Profile
+                  </button>
+                )}
               </div>
             </div>
           </div>
