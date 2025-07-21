@@ -7,6 +7,7 @@ const SECRET_KEY = process.env.JWT_SECRET;
 
 const User = require("./models/user");
 const Owner = require("./models/Owners");
+const Order = require("./models/order");
 
 const app = express();
 const PORT = 5000;
@@ -120,6 +121,44 @@ app.get("/api/owners", async (req, res) => {
   } catch (error) {
     console.error("❗ Error fetching owners:", error);
     res.status(500).json({ error: "Failed to fetch owners" });
+  }
+});
+
+app.post("/api/orders/create", async (req, res) => {
+  try {
+    const {
+      shopName,
+      shopOwner,
+      shopAddress,
+      customerName,
+      phoneNumber,
+      userAddress,
+      paymentMethod,
+      paymentStatus,
+      paymentId,
+      orderItems,
+      amount,
+    } = req.body;
+
+    const newOrder = new Order({
+      shopName,
+      shopOwner,
+      shopAddress,
+      customerName,
+      phoneNumber,
+      userAddress,
+      paymentMethod,
+      paymentStatus,
+      paymentId,
+      orderItems,
+      amount,
+    });
+
+    await newOrder.save();
+    res.status(201).json({ message: "Order saved successfully" });
+  } catch (error) {
+    console.error("Error saving order:", error);
+    res.status(500).json({ error: "Failed to save order" });
   }
 });
 
