@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   FaMapMarkerAlt,
   FaUser,
@@ -17,6 +18,7 @@ const ITEM_PRICES = {
 };
 
 const BuyNowPage = () => {
+  const navigate = useNavigate();
   const { id } = useParams();
   const [plant, setPlant] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -68,20 +70,21 @@ const BuyNowPage = () => {
   }, 0);
 
   const handleBuyNow = () => {
-    const summary = Object.entries(order)
-      .filter(([_, val]) => val > 0)
-      .map(([key, val]) => {
-        const name = key.replace(/([A-Z])/g, " $1");
-        const total = val * ITEM_PRICES[key];
-        return `${val} x ${name} = ₹${total}`;
-      })
-      .join("\n");
+  const hasItems = Object.values(order).some((qty) => qty > 0);
 
-    if (!summary) return alert("Please select at least one item to order.");
+  if (!hasItems) {
+    alert("Please select at least one item to order.");
+    return;
+  }
 
-    alert(
-      `Order Placed!\n\n${summary}\n\nTotal: ₹${totalAmount}\nFrom: ${plant.shopName}`
-    );
+  navigate("/payment", {
+    state: {
+      order,
+      plant,
+      totalAmount,
+    },
+  });
+
   };
 
   if (loading)

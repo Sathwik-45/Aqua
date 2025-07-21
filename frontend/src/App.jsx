@@ -4,7 +4,8 @@ import Register from "./components/Register";
 import Login from "./components/Login";
 import Profile from "./components/Profile";
 import Home from "./components/Home";
-import BuyNowPage from "./components/buynow"; // optional
+import BuyNowPage from "./components/buynow";
+import PaymentPage from "./components/paymentpage";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
       <Route path="/Home" element={<Home />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/buynow/:id" element={<BuyNowPage />} />
+      <Route path="/payment" element={<PaymentPage />} /> 
     </Routes>
   );
 }
