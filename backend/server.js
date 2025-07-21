@@ -108,7 +108,7 @@ app.get("/api/owners", async (req, res) => {
       const distance = calculateDistance(userLat, userLon, ownerLat, ownerLon);
       console.log(`📏 Distance from user: ${distance.toFixed(2)} km`);
 
-      if (distance <= 15) {
+      if (distance <= 600) {
         console.log("✅ Within 10 km - Added to result\n");
         nearbyOwners.push(owner);
       } else {
