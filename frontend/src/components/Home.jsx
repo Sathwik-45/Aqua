@@ -107,8 +107,6 @@ const HomePage = () => {
   return (
     <div className="bg-blue-50 min-h-screen p-4">
       <div className="max-w-5xl mx-auto">
-        <Navbar />
-
         {/* Search Bar */}
         <div className="relative mt-3 ">
           <input

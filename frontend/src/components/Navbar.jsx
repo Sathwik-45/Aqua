@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Menu, LogIn, ChevronUp, UserCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import { Link } from "react-router-dom";
 
 const Navbar = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -56,19 +57,19 @@ const Navbar = () => {
       <div className="md:hidden">
         {isAuthenticated ? (
           <button
-    onClick={() => {
-      const token = localStorage.getItem("token");
-      if (token) {
-        navigate("/profile");
-        toggleMenu();
-      } else {
-        alert("Please log in to view your profile.");
-      }
-    }}
-    className="flex items-center gap-1 text-blue-600 font-medium hover:text-blue-800 transition duration-200"
-  >
-    <UserCircle className="w-6 h-6" />
-  </button>
+            onClick={() => {
+              const token = localStorage.getItem("token");
+              if (token) {
+                navigate("/profile");
+                toggleMenu();
+              } else {
+                alert("Please log in to view your profile.");
+              }
+            }}
+            className="flex items-center gap-1 text-blue-600 font-medium hover:text-blue-800 transition duration-200"
+          >
+            <UserCircle className="w-6 h-6" />
+          </button>
         ) : (
           <button
             onClick={handleLogin}
@@ -88,7 +89,10 @@ const Navbar = () => {
         >
           Home
         </li>
-        <li className="hover:text-blue-600 cursor-pointer">My Orders</li>
+
+        <li className="hover:text-blue-600 cursor-pointer">
+          <Link to="/my-orders">My Orders</Link>
+        </li>
         <li
           onClick={handleLogout}
           className="hover:text-red-500 cursor-pointer transition duration-200"
@@ -121,7 +125,13 @@ const Navbar = () => {
           >
             Home
           </li>
-          <li className="hover:text-blue-600 cursor-pointer">My Orders</li>
+
+          <li className="hover:text-blue-600 cursor-pointer">
+            <Link to="/my-orders" onClick={toggleMenu}>
+              My Orders
+            </Link>
+          </li>
+
           {localStorage.getItem("token") && (
             <li
               onClick={handleLogout}

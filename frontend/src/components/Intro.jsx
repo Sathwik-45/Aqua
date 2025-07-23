@@ -1,24 +1,21 @@
 import React from "react";
-import Navbar from "./Navbar";
 import AdCarousel from "./Adimages";
 import { Link } from "react-router-dom";
 
 const Intro = () => {
   return (
     <div className="flex flex-col min-h-screen">
-      <Navbar />
-{/* bg-gradient-to-b from-blue-100 via-white to-blue-50  */}
+      {/* bg-gradient-to-b from-blue-100 via-white to-blue-50  */}
       {/* Hero Section */}
       <div className="p-10 bg-gradient-to-b from-blue-100 via-white to-white-50 flex items-center justify-center  px-6">
         <div className="max-w-7xl w-full grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-          
           {/* Left Content */}
           <div className="space-y-6">
             <h1 className="text-4xl md:text-5xl font-extrabold text-blue-700 leading-tight">
               Welcome to <span className="text-blue-500">PureDrop</span>
             </h1>
             <p className="text-gray-700 text-lg">
-              Delivering pure, refreshing water to your doorstep. 
+              Delivering pure, refreshing water to your doorstep.
             </p>
             <Link
               to="/login"
@@ -29,7 +26,6 @@ const Intro = () => {
           </div>
 
           {/* Right Image */}
-         
         </div>
       </div>
 

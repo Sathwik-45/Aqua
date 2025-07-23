@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import Navbar from "./Navbar";
 import { Mail, Phone, MapPin, CalendarDays } from "lucide-react";
 
 const Profile = () => {
@@ -18,7 +17,9 @@ const Profile = () => {
     const fetchUser = async () => {
       try {
         const storedPhone = localStorage.getItem("phone");
-        const res = await fetch(`http://localhost:5000/api/customers/${storedPhone}`);
+        const res = await fetch(
+          `http://localhost:5000/api/customers/${storedPhone}`
+        );
         if (!res.ok) throw new Error("Failed to fetch user");
         const data = await res.json();
         setUser(data);
@@ -56,13 +57,11 @@ const Profile = () => {
     setIsUpdating(false);
   };
 
- return (
+  return (
     <div className="min-h-screen bg-gradient-to-br from-sky-50 to-white">
-      <Navbar />
       <div className="flex justify-center items-center py-12 px-4">
         {user ? (
           <div className="w-full max-w-4xl bg-white shadow-xl border border-blue-100 rounded-3xl overflow-hidden grid md:grid-cols-3">
-            
             {/* Left Panel: Avatar */}
             <div className="bg-gradient-to-b from-blue-50 to-white p-8 flex flex-col items-center justify-center border-r border-blue-100">
               <img
@@ -70,8 +69,12 @@ const Profile = () => {
                 src={`https://api.dicebear.com/7.x/thumbs/svg?seed=${avatarSeed}`}
                 alt="Profile Avatar"
               />
-              <h2 className="mt-4 text-xl font-semibold text-gray-800">{user.name}</h2>
-              <p className="text-sm text-gray-500">Member since {new Date(user.createdAt).toLocaleDateString()}</p>
+              <h2 className="mt-4 text-xl font-semibold text-gray-800">
+                {user.name}
+              </h2>
+              <p className="text-sm text-gray-500">
+                Member since {new Date(user.createdAt).toLocaleDateString()}
+              </p>
             </div>
 
             {/* Right Panel: Details */}
@@ -89,7 +92,9 @@ const Profile = () => {
               <div className="space-y-5">
                 {/* Name Field */}
                 <div className="flex items-start gap-4">
-                  <label className="w-28 text-blue-600 font-medium pt-2">Name:</label>
+                  <label className="w-28 text-blue-600 font-medium pt-2">
+                    Name:
+                  </label>
                   {editMode ? (
                     <input
                       className="border border-gray-300 p-2 rounded w-full max-w-md shadow-sm"
@@ -187,7 +192,9 @@ const Profile = () => {
             </div>
           </div>
         ) : (
-          <p className="text-center text-gray-500 text-lg">Loading profile...</p>
+          <p className="text-center text-gray-500 text-lg">
+            Loading profile...
+          </p>
         )}
       </div>
     </div>

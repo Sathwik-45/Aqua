@@ -1,7 +1,6 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FaMapMarkerAlt, FaUser } from "react-icons/fa";
-import Navbar from "./Navbar";
 const PaymentPage = () => {
   const [showPopup, setShowPopup] = React.useState(false);
 
@@ -49,6 +48,7 @@ const PaymentPage = () => {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
+              shopPhone: plant.phone,
               shopName: plant.shopName,
               shopOwner: plant.ownerName,
               shopAddress: plant.address,
@@ -151,7 +151,6 @@ const PaymentPage = () => {
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-2xl">
-      <Navbar />
       <h2 className="text-2xl font-bold text-blue-700 mt-3 mb-4">
         Payment Details
       </h2>

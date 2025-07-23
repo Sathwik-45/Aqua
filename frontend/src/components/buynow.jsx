@@ -71,21 +71,20 @@ const BuyNowPage = () => {
   }, 0);
 
   const handleBuyNow = () => {
-  const hasItems = Object.values(order).some((qty) => qty > 0);
+    const hasItems = Object.values(order).some((qty) => qty > 0);
 
-  if (!hasItems) {
-    alert("Please select at least one item to order.");
-    return;
-  }
+    if (!hasItems) {
+      alert("Please select at least one item to order.");
+      return;
+    }
 
-  navigate("/payment", {
-    state: {
-      order,
-      plant,
-      totalAmount,
-    },
-  });
-
+    navigate("/payment", {
+      state: {
+        order,
+        plant,
+        totalAmount,
+      },
+    });
   };
 
   if (loading)
@@ -102,7 +101,6 @@ const BuyNowPage = () => {
 
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-2xl mt-1">
-     <Navbar/>
       <img
         src={plant.shopImage || "/placeholder.png"}
         alt={plant.shopName}

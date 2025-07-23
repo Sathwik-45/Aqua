@@ -126,6 +126,7 @@ app.get("/api/owners", async (req, res) => {
 app.post("/api/orders/create", async (req, res) => {
   try {
     const {
+      shopPhone,
       shopName,
       shopOwner,
       shopAddress,
@@ -140,6 +141,7 @@ app.post("/api/orders/create", async (req, res) => {
     } = req.body;
 
     const newOrder = new Order({
+      shopPhone,
       shopName,
       shopOwner,
       shopAddress,
@@ -214,6 +216,21 @@ app.get("/api/login", async (req, res) => {
   } catch (err) {
     console.error("Login error:", err);
     res.status(500).json({ message: "Server error" });
+  }
+});
+
+app.get("/api/orders", async (req, res) => {
+  const { phone } = req.query;
+  if (!phone) {
+    return res.status(400).json({ error: "Phone number is required" });
+  }
+
+  try {
+    const orders = await Order.find({ phoneNumber: phone });
+    res.json(orders);
+  } catch (err) {
+    console.error("Error fetching orders:", err);
+    res.status(500).json({ error: "Server error" });
   }
 });
 
