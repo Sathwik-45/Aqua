@@ -23,7 +23,12 @@ const Myorders = () => {
   };
 
   useEffect(() => {
-    fetchOrders();
+    const interval = setInterval(() => {
+      fetchOrders();
+    }, 2000); // 1000 milliseconds = 1 second
+
+    // Clear interval on component unmount
+    return () => clearInterval(interval);
   }, []);
 
   return (
