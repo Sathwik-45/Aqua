@@ -162,7 +162,7 @@ const BuyNowPage = () => {
 
       <button
         onClick={handleBuyNow}
-        className="w-full mt-6 bg-green-600 text-white py-2 rounded-lg hover:bg-green-700"
+        className="w-full mt-6 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
       >
         Buy Now
       </button>
