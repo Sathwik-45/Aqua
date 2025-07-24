@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import Navbar2 from "./Navbar2";
+import Navbar from "./Navbar";
 import { Eye, EyeOff } from "lucide-react";
 
 const Register = () => {
@@ -67,7 +67,7 @@ const Register = () => {
 
   return (
     <div>
-      <Navbar2 />
+      <Navbar />
       <div className="flex-1 bg-gray-50 flex items-center justify-center px-4 py-10 min-h-[calc(100vh-4rem)]">
         <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-6">
           {/* Logo */}

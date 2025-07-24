@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, X, CheckCircle, XCircle } from "lucide-react";
 import { jwtDecode } from "jwt-decode";
-import Navbar2 from "./Navbar2";
+
 
 const Login = () => {
   const navigate = useNavigate();
@@ -68,6 +68,8 @@ const Login = () => {
       if (response.ok) {
         localStorage.setItem("token", data.token);
         localStorage.setItem("phone", form.name || "");
+window.dispatchEvent(new Event("storage"));
+
         localStorage.setItem("userName", data.user.name);
         setMessage("Login successful!");
         setMessageType("success");
@@ -84,7 +86,7 @@ const Login = () => {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Navbar2 />
+     
 
       <div className="flex-1 bg-gray-50 flex items-center justify-center px-4 py-10 min-h-[calc(100vh-4rem)]">
         <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-6">
