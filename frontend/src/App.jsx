@@ -8,6 +8,7 @@ import BuyNowPage from "./components/buynow";
 import PaymentPage from "./components/paymentpage";
 import Myorders from "./components/Myorders";
 import Navbar from "./components/Navbar";
+import Change_loc from "./components/change_loc";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
         <Route path="/buynow/:id" element={<BuyNowPage />} />
         <Route path="/payment" element={<PaymentPage />} />
         <Route path="/my-orders" element={<Myorders />} />
+        <Route path="/change-location" element={<Change_loc />} />
       </Routes>
     </div>
   );

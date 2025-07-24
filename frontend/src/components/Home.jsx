@@ -2,9 +2,13 @@ import React, { useState, useEffect, useCallback } from "react";
 import Navbar from "./Navbar";
 import { FaSearch, FaStar, FaLocationArrow, FaUser } from "react-icons/fa";
 import { MapPin } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const HomePage = () => {
+  const location = useLocation();
+  const redirectedLat = location.state?.lat;
+  const redirectedLon = location.state?.lon;
+
   const navigate = useNavigate();
   const [coordinates, setCoordinates] = useState({ lat: null, lon: null });
   const [allWaterPlants, setAllWaterPlants] = useState([]);
@@ -34,25 +38,24 @@ const HomePage = () => {
       }
     };
 
-    if (navigator.geolocation) {
+    if (redirectedLat && redirectedLon) {
+      // ✅ Use redirected coordinates from Change_loc
+      setCoordinates({ lat: redirectedLat, lon: redirectedLon });
+      fetchUserLocation(redirectedLat, redirectedLon);
+    } else if (navigator.geolocation) {
+      // ✅ Fallback to browser location
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const { latitude, longitude } = position.coords;
-
-          // ✅ Set coordinates
           setCoordinates({ lat: latitude, lon: longitude });
-
-          // ✅ Fetch readable address
           fetchUserLocation(latitude, longitude);
         },
         () => {
           setUserLocation("Location access denied");
         }
       );
-    } else {
-      setUserLocation("Geolocation not supported");
     }
-  }, []);
+  }, [redirectedLat, redirectedLon]);
 
   // ✅ fetch shop data (no hooks inside)
   const fetchWaterPlantsFromBackend = useCallback(async () => {
@@ -119,9 +122,24 @@ const HomePage = () => {
           <FaSearch className="absolute top-3 left-3 text-blue-400" />
         </div>
 
-        <div className="mt-2 mb-2 text-sm text-gray-700 text-right flex items-center justify-end gap-1">
-          <MapPin className="w-4 h-4 text-blue-500" />
-          <span className="font-semibold">{userLocation}</span>
+        {/* Location + Change Location Button */}
+        <div className="mt-2 mb-2 text-sm text-gray-700 flex items-center justify-between">
+          <div className="flex items-center gap-1">
+            <MapPin className="w-4 h-4 text-blue-500" />
+            <span className="font-semibold">{userLocation}</span>
+          </div>
+          <button
+            onClick={() =>
+              navigate("/change-location", {
+                state: {
+                  lat: coordinates.lat,
+                  lon: coordinates.lon,
+                },
+              })
+            }
+          >
+            Change Location
+          </button>
         </div>
 
         {/* Loading State or No Results */}
