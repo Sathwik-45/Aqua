@@ -1,8 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Menu, LogIn, ChevronUp, UserCircle } from "lucide-react";
-import { useNavigate } from "react-router-dom";
-import { useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 const Navbar = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -23,13 +21,22 @@ const Navbar = () => {
   };
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    const name = localStorage.getItem("userName");
+    const checkAuth = () => {
+      const token = localStorage.getItem("token");
+      const name = localStorage.getItem("userName");
 
-    if (token) {
-      setIsAuthenticated(true);
-      setUsername(name);
-    }
+      if (token) {
+        setIsAuthenticated(true);
+        setUsername(name || "Profile");
+      } else {
+        setIsAuthenticated(false);
+        setUsername("");
+      }
+    };
+
+    checkAuth();
+    window.addEventListener("storage", checkAuth);
+    return () => window.removeEventListener("storage", checkAuth);
   }, []);
 
   return (
@@ -46,6 +53,7 @@ const Navbar = () => {
             <Menu className="w-6 h-6 text-gray-700 transition-transform duration-300" />
           )}
         </button>
+
         {/* Logo */}
         <div className="font-inter text-2xl font-semibold flex items-center">
           <span className="text-blue-800">Pure</span>
@@ -53,18 +61,13 @@ const Navbar = () => {
         </div>
       </div>
 
-      {/* Right: Login (mobile) */}
+      {/* Right: Login/Profile (mobile) */}
       <div className="md:hidden">
         {isAuthenticated ? (
           <button
             onClick={() => {
-              const token = localStorage.getItem("token");
-              if (token) {
-                navigate("/profile");
-                toggleMenu();
-              } else {
-                alert("Please log in to view your profile.");
-              }
+              navigate("/profile");
+             
             }}
             className="flex items-center gap-1 text-blue-600 font-medium hover:text-blue-800 transition duration-200"
           >
@@ -82,7 +85,7 @@ const Navbar = () => {
       </div>
 
       {/* Desktop Menu */}
-      <ul className="hidden md:flex space-x-6 text-gray-700 font-medium ml-auto">
+      <ul className="hidden md:flex space-x-6 text-gray-700 font-medium ml-auto items-center">
         <li
           onClick={() => navigate("/")}
           className="hover:text-blue-600 cursor-pointer"
@@ -93,12 +96,36 @@ const Navbar = () => {
         <li className="hover:text-blue-600 cursor-pointer">
           <Link to="/my-orders">My Orders</Link>
         </li>
-        <li
-          onClick={handleLogout}
-          className="hover:text-red-500 cursor-pointer transition duration-200"
-        >
-          Logout
-        </li>
+
+        {isAuthenticated ? (
+          <>
+           <li
+  onClick={() => {
+    navigate("/profile");
+
+  }}
+  className="flex items-center gap-1 text-blue-600 hover:text-blue-800 cursor-pointer transition duration-200"
+>
+  <UserCircle className="w-6 h-6" />
+  <span className="hidden sm:inline">{username}</span>
+</li>
+
+            <li
+              onClick={handleLogout}
+              className="hover:text-red-500 cursor-pointer transition duration-200"
+            >
+              Logout
+            </li>
+          </>
+        ) : (
+          <li
+            onClick={handleLogin}
+            className="flex items-center gap-1 text-blue-600 hover:text-blue-800 cursor-pointer transition duration-200"
+          >
+            <LogIn className="w-5 h-5" />
+            <span>Login</span>
+          </li>
+        )}
       </ul>
 
       {/* Mobile Dropdown Menu */}
@@ -113,26 +140,31 @@ const Navbar = () => {
           <li
             onClick={() => {
               const token = localStorage.getItem("token");
-              if (token) {
-                navigate("/Home");
-                toggleMenu();
-              } else {
-                navigate("/");
-                toggleMenu();
-              }
+              navigate(token ? "/home" : "/");
+              toggleMenu();
             }}
             className="hover:text-blue-600 cursor-pointer"
           >
             Home
           </li>
 
-          <li className="hover:text-blue-600 cursor-pointer">
-            <Link to="/my-orders" onClick={toggleMenu}>
-              My Orders
-            </Link>
+          <li
+            onClick={() => {
+              const token = localStorage.getItem("token");
+              if (token) {
+                navigate("/my-orders");
+              } else {
+                alert("Login before seeing orders");
+                navigate("/login");
+              }
+              toggleMenu();
+            }}
+            className="hover:text-blue-600 cursor-pointer"
+          >
+            My Orders
           </li>
 
-          {localStorage.getItem("token") && (
+          {isAuthenticated && (
             <li
               onClick={handleLogout}
               className="hover:text-red-500 cursor-pointer transition duration-200"

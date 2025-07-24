@@ -1,10 +1,12 @@
 import React from "react";
 import AdCarousel from "./Adimages";
 import { Link } from "react-router-dom";
+import Navbar from "./Navbar";
 
 const Intro = () => {
   return (
     <div className="flex flex-col min-h-screen">
+  
       {/* bg-gradient-to-b from-blue-100 via-white to-blue-50  */}
       {/* Hero Section */}
       <div className="p-10 bg-gradient-to-b from-blue-100 via-white to-white-50 flex items-center justify-center  px-6">

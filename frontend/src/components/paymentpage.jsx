@@ -23,6 +23,17 @@ const PaymentPage = () => {
   }
 
   const { order, plant, totalAmount } = state;
+const [district, setDistrict] = React.useState("");
+const [mandal, setMandal] = React.useState("");
+const [area, setArea] = React.useState("");
+const [address, setAddress] = React.useState("");
+React.useEffect(() => {
+  const full = [address, area, mandal, district]
+    .filter(Boolean)
+    .join(", ");
+  setUserAddress(full);
+}, [address, area, mandal, district]);
+
 
   const loadRazorpayScript = () => {
     return new Promise((resolve) => {
@@ -178,11 +189,11 @@ const PaymentPage = () => {
             <button
               onClick={() => {
                 setShowPopup(false);
-                navigate("/"); // optional: redirect to home page
+                navigate("/my-orders"); // optional: redirect to home page
               }}
               className="mt-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
             >
-              Okay
+              THANK YOU
             </button>
           </div>
         </div>
@@ -207,21 +218,99 @@ const PaymentPage = () => {
         </div>
       </div>
       <div className="mb-6">
-        <label
-          htmlFor="user-address"
-          className="block text-lg font-semibold text-blue-600 mb-2"
-        >
-          Delivery Address:
-        </label>
-        <textarea
-          id="user-address"
-          rows={3}
-          className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-          placeholder="Enter your delivery address..."
-          value={userAddress}
-          onChange={(e) => setUserAddress(e.target.value)}
-        />
-      </div>
+  <label
+    htmlFor="district"
+    className="block text-lg font-semibold text-blue-600 mb-2"
+  >
+    District:
+  </label>
+  <select
+    id="district"
+    className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+    value={district}
+    onChange={(e) => setDistrict(e.target.value)}
+  >
+    <option value="">Select District</option>
+    <option>Anakapalli</option>
+    <option>Ananthapuramu</option>
+    <option>Bapatla</option>
+    <option>Chittoor</option>
+    <option>Dr. B. R. Ambedkar Konaseema</option>
+    <option>East Godavari</option>
+    <option>Eluru</option>
+    <option>Guntur</option>
+    <option>Kakinada</option>
+    <option>Krishna</option>
+    <option>Kurnool</option>
+    <option>Nandyal</option>
+    <option>Sri Potti Sriramulu Nellore</option>
+    <option>NTR</option>
+    <option>Palnadu</option>
+    <option>Parvathipuram Manyam</option>
+    <option>Prakasam</option>
+    <option>Srikakulam</option>
+    <option>Tirupati</option>
+    <option>Visakhapatnam</option>
+    <option>Vizianagaram</option>
+    <option>West Godavari</option>
+    <option>YSR Kadapa</option>
+    <option>Alluri Sitharama Raju</option>
+    <option>Annamayya</option>
+    <option>Sri Sathya Sai</option>
+  </select>
+</div>
+
+<div className="mb-6">
+  <label
+    htmlFor="mandal"
+    className="block text-lg font-semibold text-blue-600 mb-2"
+  >
+    Mandal:
+  </label>
+  <input
+    type="text"
+    id="mandal"
+    className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+    placeholder="Enter Mandal..."
+    value={mandal}
+    onChange={(e) => setMandal(e.target.value)}
+  />
+</div>
+
+<div className="mb-6">
+  <label
+    htmlFor="area"
+    className="block text-lg font-semibold text-blue-600 mb-2"
+  >
+    Area:
+  </label>
+  <input
+    type="text"
+    id="area"
+    className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+    placeholder="Enter Area..."
+    value={area}
+    onChange={(e) => setArea(e.target.value)}
+  />
+</div>
+
+<div className="mb-6">
+  <label
+    htmlFor="address"
+    className="block text-lg font-semibold text-blue-600 mb-2"
+  >
+    Full Address:
+  </label>
+  <textarea
+    id="address"
+    rows={3}
+    className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+    placeholder="House number, street name, etc..."
+    value={address}
+    onChange={(e) => setAddress(e.target.value)}
+  />
+</div>
+
       <div className="mb-4">
         <h3 className="text-lg font-semibold text-blue-600 mb-3">
           Choose Payment Method:
