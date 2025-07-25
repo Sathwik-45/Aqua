@@ -123,6 +123,44 @@ app.get("/api/owners", async (req, res) => {
   }
 });
 
+app.post("/api/user/update-delivery-address", async (req, res) => {
+  const { phone, delivery_address } = req.body;
+
+  try {
+    const user = await User.findOneAndUpdate(
+      { phone },
+      { delivery_address },
+      { new: true }
+    );
+
+    console.log("User", user);
+
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    res.status(200).json({ message: "Address updated", delivery_address });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+});
+
+app.get("/api/get-delivery-address", async (req, res) => {
+  const { phone } = req.query;
+
+  try {
+    const user = await User.findOne({ phone });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    console.log("Deliveraddress", user.delivery_address);
+    return res.json({ delivery_address: user.delivery_address || "" });
+  } catch (err) {
+    return res
+      .status(500)
+      .json({ message: "Server error", error: err.message });
+  }
+});
+
 app.post("/api/orders/create", async (req, res) => {
   try {
     const {

@@ -67,7 +67,6 @@ const Register = () => {
 
   return (
     <div>
-      <Navbar />
       <div className="flex-1 bg-gray-50 flex items-center justify-center px-4 py-10 min-h-[calc(100vh-4rem)]">
         <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-6">
           {/* Logo */}
@@ -152,12 +151,14 @@ const Register = () => {
                 />
                 <button
                   type="button"
-                  onClick={() =>
-                    setShowConfirmPassword(!showConfirmPassword)
-                  }
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   className="absolute inset-y-0 right-3 flex items-center text-sm text-gray-600"
                 >
-                  {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  {showConfirmPassword ? (
+                    <EyeOff size={20} />
+                  ) : (
+                    <Eye size={20} />
+                  )}
                 </button>
               </div>
             </div>

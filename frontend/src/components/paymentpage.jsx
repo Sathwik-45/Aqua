@@ -1,9 +1,23 @@
 import React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { FaMapMarkerAlt, FaUser } from "react-icons/fa";
-const PaymentPage = () => {
-  const [showPopup, setShowPopup] = React.useState(false);
+import { useLayoutEffect, useState } from "react";
+import { Pencil } from "lucide-react";
 
+import { Plus } from "lucide-react";
+
+const PaymentPage = () => {
+  const [showAddressModal, setShowAddressModal] = useState(false);
+  const [formData, setFormData] = useState({
+    house: "",
+    area: "",
+    pincode: "",
+    city: "",
+    state: "",
+  });
+
+  const [showPopup, setShowPopup] = React.useState(false);
+  const [deliveryAddress, setDeliveryAddress] = useState("");
   const [userAddress, setUserAddress] = React.useState("");
   const { state } = useLocation();
   const navigate = useNavigate();
@@ -23,17 +37,14 @@ const PaymentPage = () => {
   }
 
   const { order, plant, totalAmount } = state;
-const [district, setDistrict] = React.useState("");
-const [mandal, setMandal] = React.useState("");
-const [area, setArea] = React.useState("");
-const [address, setAddress] = React.useState("");
-React.useEffect(() => {
-  const full = [address, area, mandal, district]
-    .filter(Boolean)
-    .join(", ");
-  setUserAddress(full);
-}, [address, area, mandal, district]);
-
+  const [district, setDistrict] = React.useState("");
+  const [mandal, setMandal] = React.useState("");
+  const [area, setArea] = React.useState("");
+  const [address, setAddress] = React.useState("");
+  React.useEffect(() => {
+    const full = [address, area, mandal, district].filter(Boolean).join(", ");
+    setUserAddress(full);
+  }, [address, area, mandal, district]);
 
   const loadRazorpayScript = () => {
     return new Promise((resolve) => {
@@ -160,6 +171,75 @@ React.useEffect(() => {
     rzp.open();
   };
 
+  useLayoutEffect(() => {
+    const fetchAddress = async () => {
+      const phone = localStorage.getItem("phone");
+
+      try {
+        const res = await fetch(
+          `http://localhost:5000/api/get-delivery-address?phone=${phone}`
+        );
+        const data = await res.json();
+        console.log("Dtatataatat", data);
+
+        setDeliveryAddress(data.delivery_address || "");
+      } catch (err) {
+        console.error("Failed to fetch address:", err);
+      }
+    };
+
+    fetchAddress();
+  }, []);
+
+  const handleSaveAddress = async () => {
+    const fullAddress = `${formData.house}, ${formData.area}, ${formData.city}, ${formData.state} - ${formData.pincode}`;
+    const phone = localStorage.getItem("phone");
+
+    try {
+      const res = await fetch(
+        "http://localhost:5000/api/user/update-delivery-address",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ phone, delivery_address: fullAddress }),
+        }
+      );
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setDeliveryAddress(fullAddress);
+        setUserAddress(fullAddress);
+        setShowAddressModal(false);
+      } else {
+        alert(data.message || "Failed to update address");
+      }
+    } catch (error) {
+      alert("Something went wrong. Try again.");
+      console.error(error);
+    }
+  };
+
+  const handleEditAddress = () => {
+    // Split and extract values from deliveryAddress string
+    const [house, area, city, stateAndPin] = deliveryAddress
+      .split(",")
+      .map((part) => part.trim());
+    const [state, pincode] = stateAndPin?.split(" - ") ?? ["", ""];
+
+    setFormData({
+      house: house || "",
+      area: area || "",
+      city: city || "",
+      state: state || "",
+      pincode: pincode || "",
+    });
+
+    setShowAddressModal(true); // open the modal
+  };
+
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white shadow-lg rounded-2xl">
       <h2 className="text-2xl font-bold text-blue-700 mt-3 mb-4">
@@ -175,6 +255,126 @@ React.useEffect(() => {
           Owner: {plant.ownerName}
         </div>
       </div>
+
+      {showAddressModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-xl w-full max-w-md shadow-lg animate-fade-in m-5">
+            <h2 className="text-xl font-bold mb-4 text-blue-700">
+              Add Delivery Address
+            </h2>
+
+            <div className="space-y-4">
+              <input
+                type="text"
+                placeholder="House No. / Building Name"
+                value={formData.house}
+                onChange={(e) =>
+                  setFormData({ ...formData, house: e.target.value })
+                }
+                className="w-full border border-gray-300 p-2 rounded"
+              />
+
+              <input
+                type="text"
+                placeholder="Road Name / Area / Colony"
+                value={formData.area}
+                onChange={(e) =>
+                  setFormData({ ...formData, area: e.target.value })
+                }
+                className="w-full border border-gray-300 p-2 rounded"
+              />
+
+              <input
+                type="text"
+                placeholder="Pincode"
+                value={formData.pincode}
+                onChange={(e) =>
+                  setFormData({ ...formData, pincode: e.target.value })
+                }
+                className="w-full border border-gray-300 p-2 rounded"
+              />
+
+              <input
+                type="text"
+                placeholder="City"
+                value={formData.city}
+                onChange={(e) =>
+                  setFormData({ ...formData, city: e.target.value })
+                }
+                className="w-full border border-gray-300 p-2 rounded"
+              />
+
+              <select
+                value={formData.state}
+                onChange={(e) =>
+                  setFormData({ ...formData, state: e.target.value })
+                }
+                className="w-full border border-gray-300 px-4 py-2 rounded-md bg-white text-gray-700 shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition duration-200"
+              >
+                <option value="" disabled className="text-gray-400">
+                  -- Select State --
+                </option>
+                {[
+                  "Andhra Pradesh",
+                  "Arunachal Pradesh",
+                  "Assam",
+                  "Bihar",
+                  "Chhattisgarh",
+                  "Goa",
+                  "Gujarat",
+                  "Haryana",
+                  "Himachal Pradesh",
+                  "Jharkhand",
+                  "Karnataka",
+                  "Kerala",
+                  "Madhya Pradesh",
+                  "Maharashtra",
+                  "Manipur",
+                  "Meghalaya",
+                  "Mizoram",
+                  "Nagaland",
+                  "Odisha",
+                  "Punjab",
+                  "Rajasthan",
+                  "Sikkim",
+                  "Tamil Nadu",
+                  "Telangana",
+                  "Tripura",
+                  "Uttar Pradesh",
+                  "Uttarakhand",
+                  "West Bengal",
+                  "Delhi",
+                  "Jammu and Kashmir",
+                  "Ladakh",
+                  "Puducherry",
+                  "Chandigarh",
+                  "Andaman and Nicobar Islands",
+                ].map((state) => (
+                  <option key={state} value={state}>
+                    {state}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="mt-6 flex justify-end gap-2">
+              <button
+                onClick={() => setShowAddressModal(false)}
+                className="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={handleSaveAddress}
+                className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
+              >
+                Save Address and Continue
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {showPopup && (
         <div className="fixed inset-0 z-50 bg-black bg-opacity-40 flex items-center justify-center">
@@ -217,99 +417,34 @@ React.useEffect(() => {
           Total: ₹{totalAmount}
         </div>
       </div>
-      <div className="mb-6">
-  <label
-    htmlFor="district"
-    className="block text-lg font-semibold text-blue-600 mb-2"
-  >
-    District:
-  </label>
-  <select
-    id="district"
-    className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-    value={district}
-    onChange={(e) => setDistrict(e.target.value)}
-  >
-    <option value="">Select District</option>
-    <option>Anakapalli</option>
-    <option>Ananthapuramu</option>
-    <option>Bapatla</option>
-    <option>Chittoor</option>
-    <option>Dr. B. R. Ambedkar Konaseema</option>
-    <option>East Godavari</option>
-    <option>Eluru</option>
-    <option>Guntur</option>
-    <option>Kakinada</option>
-    <option>Krishna</option>
-    <option>Kurnool</option>
-    <option>Nandyal</option>
-    <option>Sri Potti Sriramulu Nellore</option>
-    <option>NTR</option>
-    <option>Palnadu</option>
-    <option>Parvathipuram Manyam</option>
-    <option>Prakasam</option>
-    <option>Srikakulam</option>
-    <option>Tirupati</option>
-    <option>Visakhapatnam</option>
-    <option>Vizianagaram</option>
-    <option>West Godavari</option>
-    <option>YSR Kadapa</option>
-    <option>Alluri Sitharama Raju</option>
-    <option>Annamayya</option>
-    <option>Sri Sathya Sai</option>
-  </select>
-</div>
 
-<div className="mb-6">
-  <label
-    htmlFor="mandal"
-    className="block text-lg font-semibold text-blue-600 mb-2"
-  >
-    Mandal:
-  </label>
-  <input
-    type="text"
-    id="mandal"
-    className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-    placeholder="Enter Mandal..."
-    value={mandal}
-    onChange={(e) => setMandal(e.target.value)}
-  />
-</div>
+      <div>
+        {deliveryAddress === "" ? (
+          <div className="flex justify-start mb-4">
+            <button
+              onClick={() => setShowAddressModal(true)}
+              className="flex items-center gap-2 bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-amber-600 transition duration-200"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Add Delivery Address</span>
+            </button>
+          </div>
+        ) : (
+          <div className="flex justify-between items-center w-full p-4 bg-gray-50 border rounded-lg shadow-sm mb-5">
+            <p className="text-gray-800 text-sm sm:text-base font-medium">
+              {deliveryAddress}
+            </p>
 
-<div className="mb-6">
-  <label
-    htmlFor="area"
-    className="block text-lg font-semibold text-blue-600 mb-2"
-  >
-    Area:
-  </label>
-  <input
-    type="text"
-    id="area"
-    className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-    placeholder="Enter Area..."
-    value={area}
-    onChange={(e) => setArea(e.target.value)}
-  />
-</div>
-
-<div className="mb-6">
-  <label
-    htmlFor="address"
-    className="block text-lg font-semibold text-blue-600 mb-2"
-  >
-    Full Address:
-  </label>
-  <textarea
-    id="address"
-    rows={3}
-    className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-    placeholder="House number, street name, etc..."
-    value={address}
-    onChange={(e) => setAddress(e.target.value)}
-  />
-</div>
+            <button
+              onClick={handleEditAddress}
+              className="flex items-center gap-1 px-3 py-1.5 text-sm font-medium bg-amber-500 text-white rounded-md hover:bg-amber-600 transition duration-200"
+            >
+              <Pencil className="w-4 h-4" />
+              Edit
+            </button>
+          </div>
+        )}
+      </div>
 
       <div className="mb-4">
         <h3 className="text-lg font-semibold text-blue-600 mb-3">
@@ -347,11 +482,12 @@ React.useEffect(() => {
           </div>
         </div>
       </div>
+
       <button
         onClick={handleConfirm}
-        disabled={!userAddress.trim()}
+        disabled={!deliveryAddress.trim()}
         className={`w-full mt-4 py-2 rounded-lg transition-all duration-200 ${
-          userAddress.trim()
+          deliveryAddress.trim()
             ? "bg-blue-600 text-white hover:bg-blue-700 cursor-pointer"
             : "bg-gray-300 text-gray-500 cursor-not-allowed"
         }`}

@@ -6,6 +6,7 @@ const userSchema = new mongoose.Schema(
     phone: String,
     email: String,
     address: String,
+    delivery_address: { type: String, default: "" },
     password: String,
   },
   { timestamps: true }
