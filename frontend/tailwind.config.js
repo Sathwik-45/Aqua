@@ -1,5 +1,5 @@
 // tailwind.config.js
-module.exports = {
+export default {
   content: [
     "./src/**/*.{js,ts,jsx,tsx}", // adjust paths based on your project
   ],

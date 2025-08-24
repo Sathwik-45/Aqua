@@ -1,6 +1,7 @@
 // backend/server.js
 const express = require("express");
 const cors = require("cors");
+const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const SECRET_KEY = process.env.JWT_SECRET;
@@ -10,6 +11,7 @@ const Order = require("./models/order");
 
 const app = express();
 const PORT = 5000;
+
 
 app.use(
   cors({
@@ -202,24 +204,84 @@ app.post("/api/orders/create", async (req, res) => {
 });
 
 app.post("/api/register", async (req, res) => {
-  const formData = req.body;
+  const { name, phone, email, address, password, confirmPassword } = req.body;
 
   try {
-    const newUser = new User(formData);
+    // 1️⃣ Required fields
+    if (!name || !phone || !email || !address || !password || !confirmPassword) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    // 2️⃣ Indian phone validation (10 digits, starts 6–9)
+    const phoneRegex = /^[6-9]\d{9}$/;
+    if (!phoneRegex.test(phone)) {
+      return res.status(400).json({ message: "Invalid Indian phone number" });
+    }
+
+    // 3️⃣ Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: "Invalid email format" });
+    }
+
+    // 4️⃣ Password validation rules
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+    if (!passwordRegex.test(password)) {
+      return res.status(400).json({
+        message:
+          "Password must be at least 8 characters long, include uppercase, lowercase, number, and special character.",
+      });
+    }
+
+    if (password !== confirmPassword) {
+      return res.status(400).json({ message: "Passwords do not match" });
+    }
+
+    // 5️⃣ Duplicate check
+    const existingUser = await User.findOne({ $or: [{ email }, { phone }] });
+    if (existingUser) {
+      return res
+        .status(409)
+        .json({ message: "Email or phone number already registered" });
+    }
+
+    // 6️⃣ Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // 7️⃣ Save user
+    const newUser = new User({
+      name,
+      phone,
+      email,
+      address,
+      password: hashedPassword,
+    });
+
     await newUser.save();
 
     console.log("User saved:", newUser);
-    res
-      .status(200)
-      .json({ message: "User registered successfully!", user: newUser });
+
+    res.status(201).json({
+      message: "User registered successfully!",
+      user: {
+        id: newUser._id,
+        name: newUser.name,
+        email: newUser.email,
+        phone: newUser.phone,
+      },
+    });
   } catch (err) {
     console.error("Error saving user:", err);
     res.status(500).json({ error: "Registration failed" });
   }
 });
 
-app.get("/api/login", async (req, res) => {
-  const { phone, password } = req.query;
+
+app.post("/api/login", async (req, res) => {
+  console.log("entered login route")
+  const { phone, password } = req.body;
 
   if (!phone || !password) {
     return res.status(400).json({ message: "Phone and password required" });
@@ -227,16 +289,25 @@ app.get("/api/login", async (req, res) => {
 
   try {
     const user = await User.findOne({ phone });
-    console.log("get user details", user);
+    console.log("User found:", user);
+    console.log("hased password",user.password)
+    console.log("password",password)
+
+    const test = await bcrypt.hash("Saikrishna@1789", 10);
+console.log("testing",test);
+
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    if (user.password !== password) {
+    // ✅ Compare plain password with stored hash
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
       return res.status(401).json({ message: "Invalid password" });
     }
 
+    // ✅ Generate token
     const token = jwt.sign(
       { userId: user._id, name: user.name, phone: user.phone },
       SECRET_KEY,
@@ -256,6 +327,9 @@ app.get("/api/login", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+
+
+
 
 app.get("/api/orders", async (req, res) => {
   const { phone } = req.query;
@@ -307,6 +381,8 @@ app.get("/api/customers/:phone", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
+
+
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

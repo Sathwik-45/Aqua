@@ -3,14 +3,13 @@ import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, X, CheckCircle, XCircle } from "lucide-react";
 import { jwtDecode } from "jwt-decode";
 
-
 const Login = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState(""); // "success" or "error"
   const [form, setForm] = useState({
-    name: "",
+    phone: "",
     password: "",
   });
 
@@ -41,38 +40,29 @@ const Login = () => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-
-
-
-
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { name, password } = form;
-
-
+    const { phone, password } = form;
 
     try {
-      const response = await fetch(
-        `http://localhost:5000/api/login?phone=${encodeURIComponent(
-          name
-        )}&password=${encodeURIComponent(password)}`,
-        {
-          method: "GET",
-        }
-      );
+      const response = await fetch("http://localhost:5000/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone, password }),
+      });
 
       const data = await response.json();
       console.log(data);
 
       if (response.ok) {
         localStorage.setItem("token", data.token);
-        localStorage.setItem("phone", form.name || "");
-window.dispatchEvent(new Event("storage"));
-
+        localStorage.setItem("phone", form.phone || "");
         localStorage.setItem("userName", data.user.name);
+
         setMessage("Login successful!");
         setMessageType("success");
+
+        window.dispatchEvent(new Event("storage"));
         navigate("/Home");
       } else {
         setMessage(data.message || "Login failed");
@@ -86,8 +76,6 @@ window.dispatchEvent(new Event("storage"));
 
   return (
     <div className="flex flex-col min-h-screen">
-     
-
       <div className="flex-1 bg-gray-50 flex items-center justify-center px-4 py-10 min-h-[calc(100vh-4rem)]">
         <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-6">
           {/* ✅ Message Box */}
@@ -140,16 +128,16 @@ window.dispatchEvent(new Event("storage"));
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label
-                htmlFor="name"
+                htmlFor="phone"
                 className="block text-sm font-medium text-gray-700 mb-1"
               >
                 Phone Number
               </label>
               <input
                 type="text"
-                name="name"
-                id="name"
-                value={form.name}
+                name="phone"
+                id="phone"
+                value={form.phone}
                 onChange={handleChange}
                 required
                 className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
