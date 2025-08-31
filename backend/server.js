@@ -12,7 +12,6 @@ const Order = require("./models/order");
 const app = express();
 const PORT = 5000;
 
-
 app.use(
   cors({
     origin: "http://localhost:5173",
@@ -53,6 +52,43 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c;
 }
+
+app.get("/geocode", async (req, res) => {
+  const { q } = req.query;
+  try {
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/search?format=json&q=${q}`,
+      {
+        headers: {
+          "User-Agent": "your-app-name", // Nominatim requires UA
+        },
+      }
+    );
+    const data = await response.json();
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to fetch location" });
+  }
+});
+
+app.get("/reverse-geocode", async (req, res) => {
+  const { lat, lon } = req.query;
+
+  try {
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`,
+      {
+        headers: {
+          "User-Agent": "my-app/1.0 (your_email@example.com)", // Required by Nominatim
+        },
+      }
+    );
+    const data = await response.json();
+    res.json(data);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch location" });
+  }
+});
 
 app.get("/api/owner/:id", async (req, res) => {
   try {
@@ -208,7 +244,14 @@ app.post("/api/register", async (req, res) => {
 
   try {
     // 1️⃣ Required fields
-    if (!name || !phone || !email || !address || !password || !confirmPassword) {
+    if (
+      !name ||
+      !phone ||
+      !email ||
+      !address ||
+      !password ||
+      !confirmPassword
+    ) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
@@ -278,9 +321,8 @@ app.post("/api/register", async (req, res) => {
   }
 });
 
-
 app.post("/api/login", async (req, res) => {
-  console.log("entered login route")
+  console.log("entered login route");
   const { phone, password } = req.body;
 
   if (!phone || !password) {
@@ -290,12 +332,11 @@ app.post("/api/login", async (req, res) => {
   try {
     const user = await User.findOne({ phone });
     console.log("User found:", user);
-    console.log("hased password",user.password)
-    console.log("password",password)
+    console.log("hased password", user.password);
+    console.log("password", password);
 
     const test = await bcrypt.hash("Saikrishna@1789", 10);
-console.log("testing",test);
-
+    console.log("testing", test);
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
@@ -327,9 +368,6 @@ console.log("testing",test);
     res.status(500).json({ message: "Server error" });
   }
 });
-
-
-
 
 app.get("/api/orders", async (req, res) => {
   const { phone } = req.query;
@@ -381,8 +419,6 @@ app.get("/api/customers/:phone", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
-
-
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);

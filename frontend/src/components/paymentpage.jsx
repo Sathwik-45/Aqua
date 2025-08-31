@@ -265,6 +265,7 @@ const PaymentPage = () => {
 
             <div className="space-y-4">
               <input
+                required
                 type="text"
                 placeholder="House No. / Building Name"
                 value={formData.house}
@@ -276,6 +277,7 @@ const PaymentPage = () => {
 
               <input
                 type="text"
+                required
                 placeholder="Road Name / Area / Colony"
                 value={formData.area}
                 onChange={(e) =>
@@ -286,6 +288,7 @@ const PaymentPage = () => {
 
               <input
                 type="text"
+                required
                 placeholder="Pincode"
                 value={formData.pincode}
                 onChange={(e) =>
@@ -296,6 +299,7 @@ const PaymentPage = () => {
 
               <input
                 type="text"
+                required
                 placeholder="City"
                 value={formData.city}
                 onChange={(e) =>
@@ -305,6 +309,7 @@ const PaymentPage = () => {
               />
 
               <select
+                required
                 value={formData.state}
                 onChange={(e) =>
                   setFormData({ ...formData, state: e.target.value })
@@ -467,7 +472,7 @@ const PaymentPage = () => {
             </p>
           </div>
 
-          <div
+          {/* <div
             onClick={() => setSelectedMethod("upi")}
             className={`cursor-pointer p-4 rounded-xl border-2 transition-all duration-200 ${
               selectedMethod === "upi"
@@ -479,7 +484,7 @@ const PaymentPage = () => {
             <p className="text-sm text-gray-500 mt-1">
               Complete payment instantly using your UPI ID.
             </p>
-          </div>
+          </div> */}
         </div>
       </div>
 
