@@ -63,9 +63,9 @@ const Profile = () => {
         {user ? (
           <div className="w-full max-w-4xl bg-white shadow-xl border border-blue-100 rounded-3xl overflow-hidden grid md:grid-cols-3">
             {/* Left Panel: Avatar */}
-            <div className="bg-gradient-to-b from-blue-50 to-white p-8 flex flex-col items-center justify-center border-r border-blue-100">
+            <div className=" p-8 flex flex-col items-center justify-center">
               <img
-                className="w-32 h-32 rounded-full border-4 border-blue-200 shadow-md"
+                className="w-32 h-32 rounded-full shadow-md"
                 src={`https://api.dicebear.com/7.x/thumbs/svg?seed=${avatarSeed}`}
                 alt="Profile Avatar"
               />

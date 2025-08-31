@@ -1,8 +1,9 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
-import { Eye, EyeOff } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom"; 
+import { Eye, EyeOff, X } from "lucide-react";
 
 const Register = () => {
+  const navigate = useNavigate(); 
   const [formData, setFormData] = useState({
     name: "",
     phone: "",
@@ -15,60 +16,90 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // ✅ Phone validation function (only digits, exactly 10 numbers)
-  const validatePhone = (phone) => {
-    return /^\d{10}$/.test(phone);
-  };
+  // ✅ Notification state
+  const [message, setMessage] = useState(null); // { text: "", type: "success" | "error" }
+
+  // ✅ Indian Phone Validation (starts with 6-9, exactly 10 digits)
+  const validateIndianPhone = (phone) => /^[6-9]\d{9}$/.test(phone);
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const showMessage = (text, type = "error") => {
+    setMessage({ text, type });
+
+    // Auto hide after 3 seconds
+    setTimeout(() => {
+      setMessage(null);
+    }, 15000);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     // ✅ Phone validation check
-    if (!validatePhone(formData.phone)) {
-      alert("Please enter a valid 10-digit phone number (digits only).");
+    if (!validateIndianPhone(formData.phone)) {
+      showMessage(
+        "Please enter a valid Indian phone number (10 digits, starts with 6-9).",
+        "error"
+      );
       return;
     }
 
     // ✅ Password match check
     if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match.");
+      showMessage("Passwords do not match.", "error");
       return;
     }
-
-    console.log("Registered data:", formData);
 
     try {
       const response = await fetch("http://localhost:5000/api/register", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
 
       const result = await response.json();
-      console.log("Server response:", result);
 
       if (response.ok) {
-        alert("Registration successful!");
+        showMessage("Registration successful!", "success");
+
+         setTimeout(() => {
+          navigate("/login");
+        }, 3000);
       } else {
-        alert(result.message || "Registration failed.");
+        showMessage(result.message || "Registration failed.", "error");
       }
     } catch (error) {
       console.error("Error during fetch:", error);
-      alert("Something went wrong.");
+      showMessage("Something went wrong.", "error");
     }
   };
 
   return (
     <div>
-     
       <div className="flex-1 bg-gray-50 flex items-center justify-center px-4 py-10 min-h-[calc(100vh-4rem)]">
         <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-6">
+          {/* ✅ Notification Banner */}
+          {message && (
+            <div
+              className={`flex items-center justify-between px-4 py-2 mb-4 rounded-md shadow-sm border ${
+                message.type === "success"
+                  ? "bg-green-50 border-green-300 text-green-800"
+                  : "bg-red-50 border-red-300 text-red-800"
+              }`}
+            >
+              <span className="text-sm font-medium">{message.text}</span>
+              <button
+                onClick={() => setMessage(null)}
+                className="ml-3 text-gray-500 hover:text-gray-700"
+              >
+                <X size={16} />
+              </button>
+            </div>
+          )}
+
           {/* Logo */}
           <div className="flex justify-center mb-6">
             <img
@@ -151,12 +182,14 @@ const Register = () => {
                 />
                 <button
                   type="button"
-                  onClick={() =>
-                    setShowConfirmPassword(!showConfirmPassword)
-                  }
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   className="absolute inset-y-0 right-3 flex items-center text-sm text-gray-600"
                 >
-                  {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  {showConfirmPassword ? (
+                    <EyeOff size={20} />
+                  ) : (
+                    <Eye size={20} />
+                  )}
                 </button>
               </div>
             </div>

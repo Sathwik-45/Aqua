@@ -22,8 +22,9 @@ const HomePage = () => {
     const fetchUserLocation = async (lat, lon) => {
       try {
         const response = await fetch(
-          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
+          `http://localhost:5000/reverse-geocode?lat=${lat}&lon=${lon}`
         );
+
         const data = await response.json();
         const city =
           data.address.city ||
@@ -182,7 +183,7 @@ const HomePage = () => {
                   <FaLocationArrow className="text-blue-400" />
                   {plant.address}, {plant.city}, {plant.state}
                 </div>
-                <div className="mt-auto pt-2 text-yellow-500 flex items-center gap-1">
+                <div className="mt-auto pt-2 text-red-500 flex items-center gap-1">
                   <FaStar /> {plant.rating}
                 </div>
               </div>
