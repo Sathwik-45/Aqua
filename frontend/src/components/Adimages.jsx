@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 const AdCarousel = () => {
-  const images = ["/gay.png", "/girl.png", "/boy.png", "/girl.png"];
+  const images = ["/gay.png", "/girl.png", "/boy.png", "/people.png"];
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
