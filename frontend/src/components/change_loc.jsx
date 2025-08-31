@@ -32,7 +32,11 @@ const Change_loc = () => {
   const [position, setPosition] = useState(initialPos);
 
   const handleSearch = async () => {
+<<<<<<< HEAD
     const response = await fetch(`http://localhost:5173/geocode?q=${location}`);
+=======
+    const response = await fetch(`${meta}/geocode?q=${location}`);
+>>>>>>> e3d294a (published in render)
     const data = await response.json();
 
     if (data.length > 0) {

@@ -22,7 +22,7 @@ const HomePage = () => {
     const fetchUserLocation = async (lat, lon) => {
       try {
         const response = await fetch(
-          `http://localhost:5000/reverse-geocode?lat=${lat}&lon=${lon}`
+          `${meta}/reverse-geocode?lat=${lat}&lon=${lon}`
         );
 
         const data = await response.json();
@@ -65,7 +65,7 @@ const HomePage = () => {
     setIsLoadingPlants(true);
     try {
       const response = await fetch(
-        `http://localhost:5000/api/owners?lat=${coordinates.lat}&lon=${coordinates.lon}`
+        `${meta}/api/owners?lat=${coordinates.lat}&lon=${coordinates.lon}`
       );
       const data = await response.json();
       console.log("API Response:", data);

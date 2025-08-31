@@ -28,7 +28,7 @@ const BuyNowPage = () => {
   useEffect(() => {
     const fetchPlant = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/owner/${id}`);
+        const res = await fetch(`${meta}}/api/owner/${id}`);
         const data = await res.json();
 
         if (res.ok) {

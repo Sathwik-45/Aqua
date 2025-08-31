@@ -45,7 +45,11 @@ const Login = () => {
     const { phone, password } = form;
 
     try {
+<<<<<<< HEAD
       const response = await fetch("http://localhost:5173/api/login", {
+=======
+      const response = await fetch(`${meta}/api/login`, {
+>>>>>>> e3d294a (published in render)
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone, password }),

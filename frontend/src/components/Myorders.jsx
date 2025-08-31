@@ -11,12 +11,21 @@ const Myorders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
+<<<<<<< HEAD
   const fetchOrders = async () => {
     try {
       const phone = localStorage.getItem("phone");
       const response = await fetch(
         `http://localhost:5173/api/orders?phone=${phone}`
       );
+=======
+const fetchOrders = async () => {
+  try {
+    const phone = localStorage.getItem("phone");
+    const response = await fetch(
+      `${meta}/api/orders?phone=${phone}`
+    );
+>>>>>>> e3d294a (published in render)
 
       if (!response.ok) throw new Error("Failed to fetch orders");
 
@@ -74,7 +83,7 @@ const Myorders = () => {
                 <p className="text-sm text-gray-500">{order.shopAddress}</p>
               </div>
 
-              {/* Meta Info */}
+              {/* `${meta} Info */}
               <div className="text-sm text-gray-600 mb-5 space-y-1">
                 <p>
                   <span className="font-medium text-gray-700">Order ID:</span>{" "}

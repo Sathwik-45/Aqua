@@ -63,7 +63,7 @@ const PaymentPage = () => {
 
       try {
         const response = await fetch(
-          "http://localhost:5173/api/orders/create",
+          "`${meta}/api/orders/create",
           {
             method: "POST",
             headers: {
@@ -177,7 +177,7 @@ const PaymentPage = () => {
 
       try {
         const res = await fetch(
-          `http://localhost:5173/api/get-delivery-address?phone=${phone}`
+          `${meta}/api/get-delivery-address?phone=${phone}`
         );
         const data = await res.json();
         console.log("Dtatataatat", data);
@@ -197,7 +197,7 @@ const PaymentPage = () => {
 
     try {
       const res = await fetch(
-        "http://localhost:5173/api/user/update-delivery-address",
+        `${meta}/api/user/update-delivery-address`,
         {
           method: "POST",
           headers: {
