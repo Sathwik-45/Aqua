@@ -183,7 +183,7 @@ const HomePage = () => {
                   <FaLocationArrow className="text-blue-400" />
                   {plant.address}, {plant.city}, {plant.state}
                 </div>
-                <div className="mt-auto pt-2 text-yellow-500 flex items-center gap-1">
+                <div className="mt-auto pt-2 text-red-500 flex items-center gap-1">
                   <FaStar /> {plant.rating}
                 </div>
               </div>
