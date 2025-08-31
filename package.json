@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "start": "node server.js"
+  },
   "dependencies": {
     "@react-google-maps/api": "^2.20.7",
     "jsonwebtoken": "^9.0.2",
@@ -6,6 +9,7 @@
     "leaflet": "^1.9.4",
     "leaflet-defaulticon-compatibility": "^0.1.2",
     "razorpay": "^2.9.6",
-    "react-leaflet": "^5.0.0"
+    "react-leaflet": "^5.0.0",
+    "express": "^4.19.2"
   }
 }

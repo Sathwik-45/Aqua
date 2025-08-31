@@ -32,7 +32,7 @@ const Change_loc = () => {
   const [position, setPosition] = useState(initialPos);
 
   const handleSearch = async () => {
-    const response = await fetch(`http://localhost:5000/geocode?q=${location}`);
+    const response = await fetch(`http://localhost:5173/geocode?q=${location}`);
     const data = await response.json();
 
     if (data.length > 0) {

@@ -18,7 +18,7 @@ const Profile = () => {
       try {
         const storedPhone = localStorage.getItem("phone");
         const res = await fetch(
-          `http://localhost:5000/api/customers/${storedPhone}`
+          `http://localhost:5173/api/customers/${storedPhone}`
         );
         if (!res.ok) throw new Error("Failed to fetch user");
         const data = await res.json();
@@ -36,7 +36,7 @@ const Profile = () => {
   const handleUpdate = async () => {
     setIsUpdating(true);
     try {
-      const res = await fetch(`http://localhost:5000/api/users/${user.phone}`, {
+      const res = await fetch(`http://localhost:5173/api/users/${user.phone}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

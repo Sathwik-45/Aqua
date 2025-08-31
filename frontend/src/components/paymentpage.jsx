@@ -22,9 +22,9 @@ const PaymentPage = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
   const ITEM_PRICES = {
-    waterTins: 30,
+    waterTins: 20,
     coolingWaterTins: 35,
-    waterBottles: 20,
+    waterBottles: 10,
     waterPackers: 15,
   };
   const [selectedMethod, setSelectedMethod] = React.useState("cod"); // cod or upi
@@ -63,7 +63,7 @@ const PaymentPage = () => {
 
       try {
         const response = await fetch(
-          "http://localhost:5000/api/orders/create",
+          "http://localhost:5173/api/orders/create",
           {
             method: "POST",
             headers: {
@@ -177,7 +177,7 @@ const PaymentPage = () => {
 
       try {
         const res = await fetch(
-          `http://localhost:5000/api/get-delivery-address?phone=${phone}`
+          `http://localhost:5173/api/get-delivery-address?phone=${phone}`
         );
         const data = await res.json();
         console.log("Dtatataatat", data);
@@ -197,7 +197,7 @@ const PaymentPage = () => {
 
     try {
       const res = await fetch(
-        "http://localhost:5000/api/user/update-delivery-address",
+        "http://localhost:5173/api/user/update-delivery-address",
         {
           method: "POST",
           headers: {
