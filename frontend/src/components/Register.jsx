@@ -1,9 +1,15 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Eye, EyeOff, X } from "lucide-react";
-const API_BASE = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
-  ? "http://localhost:5000" // Your local API endpoint
-  : "https://aqua-tml9.onrender.com";
+import { Eye, EyeOff } from "lucide-react";
+// ✅ Import Sonner's toast function
+import { toast } from "sonner";
+
+const API_BASE =
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1"
+    ? "http://localhost:5000" // Your local API endpoint
+    : "https://aqua-tml9.onrender.com";
+
 const Register = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
@@ -17,9 +23,7 @@ const Register = () => {
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
-  // ✅ Notification state
-  const [message, setMessage] = useState(null); // { text: "", type: "success" | "error" }
+  const [loading, setLoading] = useState(false);
 
   // ✅ Indian Phone Validation (starts with 6-9, exactly 10 digits)
   const validateIndianPhone = (phone) => /^[6-9]\d{9}$/.test(phone);
@@ -28,34 +32,25 @@ const Register = () => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const showMessage = (text, type = "error") => {
-    setMessage({ text, type });
-
-    // Auto hide after 3 seconds
-    setTimeout(() => {
-      setMessage(null);
-    }, 15000);
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // ✅ Phone validation check
-    if (!validateIndianPhone(formData.phone)) {
-      showMessage(
-        "Please enter a valid Indian phone number (10 digits, starts with 6-9).",
-        "error"
-      );
-      return;
-    }
-
-    // ✅ Password match check
-    if (formData.password !== formData.confirmPassword) {
-      showMessage("Passwords do not match.", "error");
-      return;
-    }
+    setLoading(true); // Start loading animation
 
     try {
+      // ✅ Phone validation check
+      if (!validateIndianPhone(formData.phone)) {
+        toast.error(
+          "Please enter a valid Indian phone number (10 digits, starts with 6-9)."
+        );
+        return;
+      }
+
+      // ✅ Password match check
+      if (formData.password !== formData.confirmPassword) {
+        toast.error("Passwords do not match.");
+        return;
+      }
+
       const response = await fetch(`${API_BASE}/api/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -65,17 +60,18 @@ const Register = () => {
       const result = await response.json();
 
       if (response.ok) {
-        showMessage("Registration successful!", "success");
-
+        toast.success("Registration successful!");
         setTimeout(() => {
           navigate("/login");
         }, 3000);
       } else {
-        showMessage(result.message || "Registration failed.", "error");
+        toast.error(result.message || "Registration failed.");
       }
     } catch (error) {
       console.error("Error during fetch:", error);
-      showMessage("Something went wrong.", "error");
+      toast.error("Something went wrong. Please check your network connection.");
+    } finally {
+      setLoading(false); // Stop loading animation
     }
   };
 
@@ -83,24 +79,8 @@ const Register = () => {
     <div>
       <div className="flex-1 bg-gray-50 flex items-center justify-center px-4 py-10 min-h-[calc(100vh-4rem)]">
         <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-6">
-          {/* ✅ Notification Banner */}
-          {message && (
-            <div
-              className={`flex items-center justify-between px-4 py-2 mb-4 rounded-md shadow-sm border ${
-                message.type === "success"
-                  ? "bg-green-50 border-green-300 text-green-800"
-                  : "bg-red-50 border-red-300 text-red-800"
-              }`}
-            >
-              <span className="text-sm font-medium">{message.text}</span>
-              <button
-                onClick={() => setMessage(null)}
-                className="ml-3 text-gray-500 hover:text-gray-700"
-              >
-                <X size={16} />
-              </button>
-            </div>
-          )}
+          {/* ❌ Removed old notification banner */}
+          {/* {message && ( ... )} */}
 
           {/* Logo */}
           <div className="flex justify-center mb-6">
@@ -199,8 +179,35 @@ const Register = () => {
             <button
               type="submit"
               className="w-full bg-blue-500 text-white font-semibold py-2 rounded-md hover:bg-blue-600 transition duration-200"
+              disabled={loading} // Disable the button while loading
             >
-              Register
+              {loading ? (
+                <div className="flex items-center justify-center">
+                  <svg
+                    className="animate-spin h-5 w-5 mr-3 text-white"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                  Registring...
+                </div>
+              ) : (
+                "Register"
+              )}
             </button>
 
             <p className="text-center text-sm text-gray-600 mt-2">
@@ -216,6 +223,7 @@ const Register = () => {
         </div>
       </div>
     </div>
+
   );
 };
 

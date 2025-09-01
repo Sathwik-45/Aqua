@@ -16,6 +16,7 @@ const API_BASE =
     : "https://aqua-tml9.onrender.com"; // Replace with your actual Render URL
 
 const Login = () => {
+   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [form, setForm] = useState({
@@ -30,7 +31,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const { phone, password } = form;
-
+ setLoading(true);
     // ✅ Sonner automatically handles clearing previous toasts
     // No need to manually call toast.dismiss()
 
@@ -44,6 +45,7 @@ const Login = () => {
       if (!response.ok) {
         const errorData = await response.json();
         // ✅ Use Sonner's toast.error
+          setLoading(false);
         toast.error(errorData.message || "Login failed. Please try again.");
         return;
       }
@@ -66,6 +68,9 @@ const Login = () => {
       console.error("Error during login:", error);
       toast.error("Network error. Please check your connection.");
     }
+    finally {
+    setLoading(false); // Make sure loading stops even if there's an error
+  }
   };
 
   return (
@@ -138,11 +143,38 @@ const Login = () => {
             </div>
 
             <button
-              type="submit"
-              className="w-full bg-blue-500 text-white font-semibold py-2 rounded-md hover:bg-blue-600 transition duration-200"
-            >
-              Login
-            </button>
+  type="submit"
+  className="w-full bg-blue-500 text-white font-semibold py-2 rounded-md hover:bg-blue-600 transition duration-200"
+  disabled={loading} // Disable the button while loading
+>
+  {loading ? (
+    <div className="flex items-center justify-center">
+      <svg
+        className="animate-spin h-5 w-5 mr-3 text-white"
+        viewBox="0 0 24 24"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <circle
+          className="opacity-25"
+          cx="12"
+          cy="12"
+          r="10"
+          stroke="currentColor"
+          strokeWidth="4"
+        ></circle>
+        <path
+          className="opacity-75"
+          fill="currentColor"
+          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+        ></path>
+      </svg>
+      Processing...
+    </div>
+  ) : (
+    "Login"
+  )}
+</button>
 
             <p className="text-center text-sm text-gray-600 mt-2">
               Not registered?{" "}
