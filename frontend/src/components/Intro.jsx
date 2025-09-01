@@ -5,7 +5,8 @@ import Navbar from "./Navbar";
 
 const Intro = () => {
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-[calc(100vh-4rem)]">
+
   
       {/* bg-gradient-to-b from-blue-100 via-white to-blue-50  */}
       {/* Hero Section */}

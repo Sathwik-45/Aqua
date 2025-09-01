@@ -40,7 +40,8 @@ const Navbar = () => {
   }, []);
 
   return (
-    <nav className="bg-white shadow-md px-4 py-3 flex items-center justify-between relative z-50">
+   <nav className="bg-white shadow-md px-4 py-3 flex items-center justify-between relative z-50 h-16">
+
       {/* Left: Hamburger menu (mobile) */}
       <div className="md:hidden flex items-center space-x-3">
         <button

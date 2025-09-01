@@ -1,25 +1,23 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Eye, EyeOff, X, CheckCircle, XCircle } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-// ✅ Dynamically set the API base URL based on the hostname.
-// This allows the app to work on both localhost and your Render domain.
-const API_BASE = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
-  ? "http://localhost:5000" // Your local API endpoint
-  : "https://aqua-tml9.onrender.com"; // ✅ Replace with your actual Render URL
+// Dynamically set the API base URL based on the hostname.
+const API_BASE =
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1"
+    ? "http://localhost:5000"
+    : "https://aqua-tml9.onrender.com"; // Replace with your actual Render URL
 
 const Login = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
-  const [message, setMessage] = useState("");
-  const [messageType, setMessageType] = useState(""); // "success" or "error"
   const [form, setForm] = useState({
     phone: "",
     password: "",
   });
-
-  // The token check on load has been removed to fix the compilation error.
-  // A check to navigate away should be added here once the jwt-decode issue is resolved.
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -28,11 +26,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const { phone, password } = form;
-
-    // Reset messages before a new submission
-    setMessage("");
-    setMessageType("");
-
+ toast.dismiss();
     try {
       const response = await fetch(`${API_BASE}/api/login`, {
         method: "POST",
@@ -40,69 +34,53 @@ const Login = () => {
         body: JSON.stringify({ phone, password }),
       });
 
-      // ✅ IMPORTANT: Check if the response is successful (status 200-299)
-      // before trying to parse the JSON. This fixes the SyntaxError.
+      // Handle specific server-side errors
       if (!response.ok) {
-        let errorData = {};
-        try {
-          errorData = await response.json();
-        } catch (jsonError) {
-          errorData.message = `Login failed. Server responded with status ${response.status}.`;
-        }
-        setMessage(errorData.message || "Login failed.");
-        setMessageType("error");
+        const errorData = await response.json();
+        // Display specific error message from the server
+        toast.error(errorData.message || "Login failed. Please try again.");
         return;
       }
 
       const data = await response.json();
       console.log(data);
 
+      // Store user data and token in local storage
       localStorage.setItem("token", data.token);
-      localStorage.setItem("phone", form.phone || "");
+      localStorage.setItem("phone", data.user.phone);
       localStorage.setItem("userName", data.user.name);
 
-      setMessage("Login successful!");
-      setMessageType("success");
+      // Display success message
+      toast.success(data.message);
 
-      window.dispatchEvent(new Event("storage"));
-      navigate("/Home");
+      // Trigger a storage event and navigate after a brief delay
+      setTimeout(() => {
+        window.dispatchEvent(new Event("storage"));
+        navigate("/Home");
+      }, 500); // Small delay to allow toast to be visible
     } catch (error) {
       console.error("Error during login:", error);
-      setMessage("Something went wrong. Please check your network connection.");
-      setMessageType("error");
+      // Handle client-side network or other unexpected errors
+      toast.error("Network error. Please check your connection.");
     }
   };
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-[calc(100vh-4rem)]">
+    <ToastContainer
+  position="top-right"
+  autoClose={5000}
+  hideProgressBar={true}
+  newestOnTop={true}  // ✅ Newest messages appear at the top
+  closeOnClick
+  rtl={false}
+  pauseOnFocusLoss
+  draggable
+  pauseOnHover
+/>
+
       <div className="flex-1 bg-gray-50 flex items-center justify-center px-4 py-10 min-h-[calc(100vh-4rem)]">
         <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-6">
-          {message && (
-            <div
-              className={`mb-4 w-full rounded-lg p-3 px-4 text-sm flex items-start justify-between gap-2 shadow-sm transition-all duration-300 ${
-                messageType === "success"
-                  ? "bg-green-50 border border-green-200 text-green-800"
-                  : "bg-red-50 border border-red-200 text-red-800"
-              }`}
-            >
-              <div className="flex items-start gap-2 flex-1">
-                {messageType === "success" ? (
-                  <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
-                ) : (
-                  <XCircle className="w-5 h-5 text-red-600 mt-0.5" />
-                )}
-                <p>{message}</p>
-              </div>
-              <button
-                onClick={() => setMessage("")}
-                className="text-gray-400 hover:text-gray-700 transition"
-                aria-label="Close"
-              >
-                <X className="w-5 h-5 mt-0.5" />
-              </button>
-            </div>
-          )}
-
           <div className="flex justify-center mb-6">
             <img
               src="/water.jpg"

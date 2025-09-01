@@ -60,7 +60,7 @@ const Profile = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-50 to-white">
+    <div className="min-h-[calc(100vh-4rem)] bg-gradient-to-br from-sky-50 to-white">
       <div className="flex justify-center items-center py-12 px-4">
         {user ? (
           <div className="w-full max-w-4xl bg-white shadow-xl border border-blue-100 rounded-3xl overflow-hidden grid md:grid-cols-3">

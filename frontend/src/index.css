@@ -1,3 +1,63 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/*
+  This targets the ToastContainer and positions it below the navbar.
+*/
+.professional-toast-container {
+  top: 0 !important;
+  transform: translateY(64px);
+  width: auto !important;
+  right: 1.5rem !important;
+  left: 1.5rem !important;
+}
+
+/*
+  General styling for all toasts for a professional look.
+  We will use a white background, consistent padding, and a subtle shadow.
+*/
+.Toastify__toast {
+  margin-top: 0rem;
+  
+  background-color: #ffffff !important; /* Clean white background */
+  color: #333333 !important; /* Dark gray text color */
+  border-radius: 6px !important;
+  font-family: Arial, sans-serif;
+  font-size: 0.9rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24) !important;
+}
+
+/*
+  Style the progress bar for a subtle indication.
+  (You can remove this if you prefer no progress bar)
+*/
+.Toastify__progress-bar {
+  background: rgba(0, 0, 0, 0.1) !important;
+  height: 2px !important;
+}
+
+/*
+  The most important part: Use a colored icon to indicate toast type.
+  We'll use a custom icon for a checkmark for success and an 'X' for error.
+*/
+.Toastify__toast--success::before {
+
+  color: #2e7d32 !important;
+  font-size: 1.5rem;
+
+}
+
+.Toastify__toast--error::before {
+ 
+  color: #c43c32 !important;
+  font-size: 1.5rem;
+ 
+}
+
+/* Style the close button to be a professional gray */
+.Toastify__close-button {
+  color: #888888 !important;
+  opacity: 1 !important;
+  font-size: 1.25rem !important;
+}

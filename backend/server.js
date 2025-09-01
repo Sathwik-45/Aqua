@@ -357,13 +357,6 @@ app.post("/api/login", async (req, res) => {
 
   try {
     const user = await User.findOne({ phone });
-    console.log("User found:", user);
-    console.log("hased password", user.password);
-    console.log("password", password);
-
-    const test = await bcrypt.hash("Saikrishna@1789", 10);
-    console.log("testing", test);
-
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
