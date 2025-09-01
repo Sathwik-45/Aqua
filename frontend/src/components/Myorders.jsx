@@ -6,26 +6,20 @@ import {
   FaMoneyBillWave,
   FaTruck,
 } from "react-icons/fa";
+const API_BASE = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+  ? "http://localhost:5000" // Your local API endpoint
+  : "https://aqua-tml9.onrender.com";
 
 const Myorders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
-<<<<<<< HEAD
-  const fetchOrders = async () => {
-    try {
-      const phone = localStorage.getItem("phone");
-      const response = await fetch(
-        `http://localhost:5173/api/orders?phone=${phone}`
-      );
-=======
 const fetchOrders = async () => {
   try {
     const phone = localStorage.getItem("phone");
     const response = await fetch(
-      `${meta}/api/orders?phone=${phone}`
+      `${API_BASE}/api/orders?phone=${phone}`
     );
->>>>>>> e3d294a (published in render)
 
       if (!response.ok) throw new Error("Failed to fetch orders");
 
@@ -83,7 +77,7 @@ const fetchOrders = async () => {
                 <p className="text-sm text-gray-500">{order.shopAddress}</p>
               </div>
 
-              {/* `${meta} Info */}
+              {/* `${API_BASE} Info */}
               <div className="text-sm text-gray-600 mb-5 space-y-1">
                 <p>
                   <span className="font-medium text-gray-700">Order ID:</span>{" "}

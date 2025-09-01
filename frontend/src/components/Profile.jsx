@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Mail, Phone, MapPin, CalendarDays } from "lucide-react";
-
+const API_BASE = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+  ? "http://localhost:5000" // Your local API endpoint
+  : "https://aqua-tml9.onrender.com";
 const Profile = () => {
   const [user, setUser] = useState(null);
   const [editMode, setEditMode] = useState(false);
@@ -18,7 +20,7 @@ const Profile = () => {
       try {
         const storedPhone = localStorage.getItem("phone");
         const res = await fetch(
-          `${meta}/api/customers/${storedPhone}`
+          `${API_BASE}/api/customers/${storedPhone}`
         );
         if (!res.ok) throw new Error("Failed to fetch user");
         const data = await res.json();
@@ -36,7 +38,7 @@ const Profile = () => {
   const handleUpdate = async () => {
     setIsUpdating(true);
     try {
-      const res = await fetch(`${meta}/api/users/${user.phone}`, {
+      const res = await fetch(`${API_BASE}/api/users/${user.phone}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

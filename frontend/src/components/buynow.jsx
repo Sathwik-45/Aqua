@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
+const API_BASE = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+  ? "http://localhost:5000" // Your local API endpoint
+  : "https://aqua-tml9.onrender.com";
 import {
   FaMapMarkerAlt,
   FaUser,
@@ -28,7 +31,7 @@ const BuyNowPage = () => {
   useEffect(() => {
     const fetchPlant = async () => {
       try {
-        const res = await fetch(`${meta}}/api/owner/${id}`);
+        const res = await fetch(`${API_BASE}/api/owner/${id}`);
         const data = await res.json();
 
         if (res.ok) {

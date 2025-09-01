@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, X, CheckCircle, XCircle } from "lucide-react";
-import { jwtDecode } from "jwt-decode";
+
+// ✅ Dynamically set the API base URL based on the hostname.
+// This allows the app to work on both localhost and your Render domain.
+const API_BASE = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+  ? "http://localhost:5000" // Your local API endpoint
+  : "https://aqua-tml9.onrender.com"; // ✅ Replace with your actual Render URL
 
 const Login = () => {
   const navigate = useNavigate();
@@ -13,28 +18,8 @@ const Login = () => {
     password: "",
   });
 
-  // ✅ Check token on load
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-
-    if (token) {
-      try {
-        const decoded = jwtDecode(token);
-        const currentTime = Date.now() / 1000;
-
-        if (decoded.exp > currentTime) {
-          navigate("/");
-        } else {
-          localStorage.removeItem("token");
-          localStorage.removeItem("userName");
-        }
-      } catch (err) {
-        console.error("Invalid token");
-        localStorage.removeItem("token");
-        localStorage.removeItem("userName");
-      }
-    }
-  }, [navigate]);
+  // The token check on load has been removed to fix the compilation error.
+  // A check to navigate away should be added here once the jwt-decode issue is resolved.
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -44,37 +29,47 @@ const Login = () => {
     e.preventDefault();
     const { phone, password } = form;
 
+    // Reset messages before a new submission
+    setMessage("");
+    setMessageType("");
+
     try {
-<<<<<<< HEAD
-      const response = await fetch("http://localhost:5173/api/login", {
-=======
-      const response = await fetch(`${meta}/api/login`, {
->>>>>>> e3d294a (published in render)
+      const response = await fetch(`${API_BASE}/api/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone, password }),
       });
 
+      // ✅ IMPORTANT: Check if the response is successful (status 200-299)
+      // before trying to parse the JSON. This fixes the SyntaxError.
+      if (!response.ok) {
+        let errorData = {};
+        try {
+          errorData = await response.json();
+        } catch (jsonError) {
+          errorData.message = `Login failed. Server responded with status ${response.status}.`;
+        }
+        setMessage(errorData.message || "Login failed.");
+        setMessageType("error");
+        return;
+      }
+
       const data = await response.json();
       console.log(data);
 
-      if (response.ok) {
-        localStorage.setItem("token", data.token);
-        localStorage.setItem("phone", form.phone || "");
-        localStorage.setItem("userName", data.user.name);
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("phone", form.phone || "");
+      localStorage.setItem("userName", data.user.name);
 
-        setMessage("Login successful!");
-        setMessageType("success");
+      setMessage("Login successful!");
+      setMessageType("success");
 
-        window.dispatchEvent(new Event("storage"));
-        navigate("/Home");
-      } else {
-        setMessage(data.message || "Login failed");
-        setMessageType("error");
-      }
+      window.dispatchEvent(new Event("storage"));
+      navigate("/Home");
     } catch (error) {
       console.error("Error during login:", error);
-      alert("Something went wrong");
+      setMessage("Something went wrong. Please check your network connection.");
+      setMessageType("error");
     }
   };
 
@@ -82,7 +77,6 @@ const Login = () => {
     <div className="flex flex-col min-h-screen">
       <div className="flex-1 bg-gray-50 flex items-center justify-center px-4 py-10 min-h-[calc(100vh-4rem)]">
         <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-6">
-          {/* ✅ Message Box */}
           {message && (
             <div
               className={`mb-4 w-full rounded-lg p-3 px-4 text-sm flex items-start justify-between gap-2 shadow-sm transition-all duration-300 ${
@@ -109,7 +103,6 @@ const Login = () => {
             </div>
           )}
 
-          {/* Logo */}
           <div className="flex justify-center mb-6">
             <img
               src="/water.jpg"
@@ -123,12 +116,10 @@ const Login = () => {
             />
           </div>
 
-          {/* Heading */}
           <h2 className="text-3xl font-bold text-center text-blue-600 mb-6">
             Login
           </h2>
 
-          {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label

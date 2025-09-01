@@ -3,7 +3,9 @@ import Navbar from "./Navbar";
 import { FaSearch, FaStar, FaLocationArrow, FaUser } from "react-icons/fa";
 import { MapPin } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
-
+const API_BASE = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+  ? "http://localhost:5000" // Your local API endpoint
+  : "https://aqua-tml9.onrender.com";
 const HomePage = () => {
   const location = useLocation();
   const redirectedLat = location.state?.lat;
@@ -22,7 +24,7 @@ const HomePage = () => {
     const fetchUserLocation = async (lat, lon) => {
       try {
         const response = await fetch(
-          `${meta}/reverse-geocode?lat=${lat}&lon=${lon}`
+          `${API_BASE}/reverse-geocode?lat=${lat}&lon=${lon}`
         );
 
         const data = await response.json();
@@ -65,7 +67,7 @@ const HomePage = () => {
     setIsLoadingPlants(true);
     try {
       const response = await fetch(
-        `${meta}/api/owners?lat=${coordinates.lat}&lon=${coordinates.lon}`
+        `${API_BASE}/api/owners?lat=${coordinates.lat}&lon=${coordinates.lon}`
       );
       const data = await response.json();
       console.log("API Response:", data);

@@ -8,6 +8,10 @@ import {
 } from "react-leaflet";
 import { useLocation, useNavigate } from "react-router-dom";
 import "leaflet/dist/leaflet.css";
+const API_BASE = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+  ? "http://localhost:5000" // Your local API endpoint
+  : "https://aqua-tml9.onrender.com";
+
 
 const MapUpdater = ({ position }) => {
   const map = useMap();
@@ -32,11 +36,7 @@ const Change_loc = () => {
   const [position, setPosition] = useState(initialPos);
 
   const handleSearch = async () => {
-<<<<<<< HEAD
-    const response = await fetch(`http://localhost:5173/geocode?q=${location}`);
-=======
-    const response = await fetch(`${meta}/geocode?q=${location}`);
->>>>>>> e3d294a (published in render)
+    const response = await fetch(`${API_BASE}/geocode?q=${location}`);
     const data = await response.json();
 
     if (data.length > 0) {

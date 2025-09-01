@@ -5,6 +5,9 @@ import { useLayoutEffect, useState } from "react";
 import { Pencil } from "lucide-react";
 
 import { Plus } from "lucide-react";
+const API_BASE = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
+  ? "http://localhost:5000" // Your local API endpoint
+  : "https://aqua-tml9.onrender.com";
 
 const PaymentPage = () => {
   const [showAddressModal, setShowAddressModal] = useState(false);
@@ -15,6 +18,7 @@ const PaymentPage = () => {
     city: "",
     state: "",
   });
+
 
   const [showPopup, setShowPopup] = React.useState(false);
   const [deliveryAddress, setDeliveryAddress] = useState("");
@@ -63,7 +67,9 @@ const PaymentPage = () => {
 
       try {
         const response = await fetch(
-          "`${meta}/api/orders/create",
+          `${API_BASE}/api/orders/create`,
+        
+          
           {
             method: "POST",
             headers: {
@@ -177,7 +183,7 @@ const PaymentPage = () => {
 
       try {
         const res = await fetch(
-          `${meta}/api/get-delivery-address?phone=${phone}`
+          `${API_BASE}/api/get-delivery-address?phone=${phone}`
         );
         const data = await res.json();
         console.log("Dtatataatat", data);
@@ -197,7 +203,7 @@ const PaymentPage = () => {
 
     try {
       const res = await fetch(
-        `${meta}/api/user/update-delivery-address`,
+        `${API_BASE}/api/user/update-delivery-address`,
         {
           method: "POST",
           headers: {
