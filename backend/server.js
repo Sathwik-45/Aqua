@@ -9,17 +9,29 @@ const User = require("./models/user");
 const Owner = require("./models/Owners");
 const Order = require("./models/order");
 
+
 const app = express();
-const PORT = 5000;
+const PORT = process.env.PORT || 5000;
 
-app.use(
-  cors({
-    origin: "http://localhost:5173",
-    methods: ["GET", "POST", "PUT", "OPTIONS"],
-    credentials: true,
-  })
-);
+// ✅ Updated CORS configuration to allow multiple origins
+const allowedOrigins = [
+  "http://localhost:5173", // For local development
+  "https://aqua-umber.vercel.app", // For your live Vercel deployment
+];
 
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (allowedOrigins.includes(origin) || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ["GET", "POST", "PUT", "OPTIONS"],
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 const mongoose = require("mongoose");
