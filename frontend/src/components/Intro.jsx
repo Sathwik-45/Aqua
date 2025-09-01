@@ -15,8 +15,8 @@ const Intro = () => {
           {/* Left Content */}
           <div className="space-y-6">
             <h1 className="text-4xl md:text-5xl font-extrabold text-blue-700 leading-tight">
-              Welcome to <span className="text-blue-500">PureDrop</span>
-            </h1>
+  Welcome to <br /><span className="text-blue-500">PureDrop</span>
+</h1>   
             <p className="text-gray-700 text-lg">
               Delivering pure, refreshing water to your doorstep.
             </p>
