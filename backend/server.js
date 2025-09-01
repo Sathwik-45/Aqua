@@ -1,4 +1,3 @@
-// backend/server.js
 const express = require("express");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
@@ -9,14 +8,13 @@ const User = require("./models/user");
 const Owner = require("./models/Owners");
 const Order = require("./models/order");
 
-
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// ✅ Updated CORS configuration to allow multiple origins
+// Updated CORS configuration to allow multiple origins
 const allowedOrigins = [
-  "http://localhost:5173", // For local development
-  "https://aqua-umber.vercel.app", // For your live Vercel deployment
+  "http://localhost:5173",
+  "https://aqua-umber.vercel.app",
 ];
 
 const corsOptions = {
@@ -45,7 +43,7 @@ mongoose
   .then(() => console.log("✅ MongoDB connected"))
   .catch((err) => console.error("❌ MongoDB connection error:", err));
 
-const fetch = require("node-fetch"); // npm install node-fetch if not already
+const fetch = require("node-fetch");
 
 // Helper function to calculate distance using the Haversine formula
 function calculateDistance(lat1, lon1, lat2, lon2) {
@@ -136,33 +134,49 @@ app.get("/api/owners", async (req, res) => {
       console.log(`\n🔍 Checking owner: ${owner.shopName}`);
       console.log(`📍 Location text: ${locationText}`);
 
-      // Convert text location to coordinates
-      const geoRes = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-          locationText
-        )}`
-      );
-      const geoData = await geoRes.json();
+      // ✅ Nested try-catch to handle individual geocoding failures
+      try {
+        const geoRes = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+            locationText
+          )}`,
+          {
+            headers: {
+              "User-Agent": "my-app/1.0 (your_email@example.com)",
+            },
+          }
+        );
 
-      if (!geoData.length) {
-        console.log("❌ Location not found in geocoding.");
+        if (!geoRes.ok) {
+          console.log(`Nominatim API responded with status: ${geoRes.status}`);
+          continue;
+        }
+        
+        const geoData = await geoRes.json();
+
+        if (!geoData.length) {
+          console.log("❌ Location not found in geocoding.");
+          continue;
+        }
+
+        const ownerLat = parseFloat(geoData[0].lat);
+        const ownerLon = parseFloat(geoData[0].lon);
+
+        console.log(`🌍 Owner coordinates: lat=${ownerLat}, lon=${ownerLon}`);
+        console.log(`📌 User coordinates:  lat=${userLat}, lon=${userLon}`);
+
+        const distance = calculateDistance(userLat, userLon, ownerLat, ownerLon);
+        console.log(`📏 Distance from user: ${distance.toFixed(2)} km`);
+
+        if (distance <= 10) { 
+          console.log("✅ Within 10 km - Added to result\n");
+          nearbyOwners.push(owner);
+        } else {
+          console.log("🚫 Too far - Skipped\n");
+        }
+      } catch (geocodingError) {
+        console.error(`❗ Error geocoding location for owner ${owner.shopName}:`, geocodingError);
         continue;
-      }
-
-      const ownerLat = parseFloat(geoData[0].lat);
-      const ownerLon = parseFloat(geoData[0].lon);
-
-      console.log(`🌍 Owner coordinates: lat=${ownerLat}, lon=${ownerLon}`);
-      console.log(`📌 User coordinates:  lat=${userLat}, lon=${userLon}`);
-
-      const distance = calculateDistance(userLat, userLon, ownerLat, ownerLon);
-      console.log(`📏 Distance from user: ${distance.toFixed(2)} km`);
-
-      if (distance <= 1500) {
-        console.log("✅ Within 10 km - Added to result\n");
-        nearbyOwners.push(owner);
-      } else {
-        console.log("🚫 Too far - Skipped\n");
       }
     }
 
