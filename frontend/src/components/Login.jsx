@@ -1,8 +1,12 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+// ❌ Remove React Toastify imports
+// import { ToastContainer, toast } from "react-toastify";
+// import "react-toastify/dist/ReactToastify.css";
+
+// ✅ Import Sonner components and functions
+import { Toaster, toast } from 'sonner';
 
 // Dynamically set the API base URL based on the hostname.
 const API_BASE =
@@ -26,7 +30,10 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const { phone, password } = form;
- toast.dismiss();
+
+    // ✅ Sonner automatically handles clearing previous toasts
+    // No need to manually call toast.dismiss()
+
     try {
       const response = await fetch(`${API_BASE}/api/login`, {
         method: "POST",
@@ -34,10 +41,9 @@ const Login = () => {
         body: JSON.stringify({ phone, password }),
       });
 
-      // Handle specific server-side errors
       if (!response.ok) {
         const errorData = await response.json();
-        // Display specific error message from the server
+        // ✅ Use Sonner's toast.error
         toast.error(errorData.message || "Login failed. Please try again.");
         return;
       }
@@ -45,39 +51,27 @@ const Login = () => {
       const data = await response.json();
       console.log(data);
 
-      // Store user data and token in local storage
       localStorage.setItem("token", data.token);
       localStorage.setItem("phone", data.user.phone);
       localStorage.setItem("userName", data.user.name);
 
-      // Display success message
+      // ✅ Use Sonner's toast.success
       toast.success(data.message);
 
-      // Trigger a storage event and navigate after a brief delay
       setTimeout(() => {
         window.dispatchEvent(new Event("storage"));
         navigate("/Home");
-      }, 500); // Small delay to allow toast to be visible
+      }, 500);
     } catch (error) {
       console.error("Error during login:", error);
-      // Handle client-side network or other unexpected errors
       toast.error("Network error. Please check your connection.");
     }
   };
 
   return (
     <div className="flex flex-col min-h-[calc(100vh-4rem)]">
-    <ToastContainer
-  position="top-right"
-  autoClose={5000}
-  hideProgressBar={true}
-  newestOnTop={true}  // ✅ Newest messages appear at the top
-  closeOnClick
-  rtl={false}
-  pauseOnFocusLoss
-  draggable
-  pauseOnHover
-/>
+      {/* ✅ Replace ToastContainer with Toaster from Sonner */}
+      <Toaster position="top-right" richColors />
 
       <div className="flex-1 bg-gray-50 flex items-center justify-center px-4 py-10 min-h-[calc(100vh-4rem)]">
         <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-6">
