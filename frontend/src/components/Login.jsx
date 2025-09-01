@@ -71,7 +71,7 @@ const Login = () => {
   return (
     <div className="flex flex-col min-h-[calc(100vh-4rem)]">
       {/* ✅ Replace ToastContainer with Toaster from Sonner */}
-      <Toaster position="top-right" richColors />
+     
 
       <div className="flex-1 bg-gray-50 flex items-center justify-center px-4 py-10 min-h-[calc(100vh-4rem)]">
         <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-6">

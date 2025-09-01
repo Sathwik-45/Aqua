@@ -9,11 +9,12 @@ import PaymentPage from "./components/paymentpage";
 import Myorders from "./components/Myorders";
 import Navbar from "./components/Navbar";
 import Change_loc from "./components/change_loc";
-
+import { Toaster } from 'sonner';
 function App() {
   return (
     <div>
       <Navbar />
+       <Toaster position="top-right" richColors />
       <Routes>
         <Route path="/" element={<Intro />} />
         <Route path="/register" element={<Register />} />
