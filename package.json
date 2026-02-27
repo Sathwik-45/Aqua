@@ -1,7 +1,7 @@
 {
   "scripts": {
-    "start": "node backend/server.js",
-    "backend": "npm start",
+    "start": "npm start --prefix backend",
+    "backend": "npm start --prefix backend",
     "frontend": "npm run dev --prefix frontend",
     "dev": "concurrently \"npm run frontend\" \"npm run backend\"",
     "build": "npm run build --prefix frontend"

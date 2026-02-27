@@ -1,8 +1,9 @@
 const express = require("express");
+const path = require("path");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-require("dotenv").config();
+require("dotenv").config({ path: path.join(__dirname, ".env") });
 const SECRET_KEY = process.env.JWT_SECRET;
 const User = require("./models/user");
 const Owner = require("./models/Owners");
