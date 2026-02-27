@@ -85,17 +85,25 @@ app.get("/reverse-geocode", async (req, res) => {
 
   try {
     const response = await fetch(
-      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`,
+      `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1`,
       {
         headers: {
-          "User-Agent": "my-app/1.0 (your_email@example.com)", // Required by Nominatim
+          "User-Agent": "AquaApp/1.0 (sathwik_project@example.com)", // Improved UA
+          "Accept-Language": "en"
         },
       }
     );
+
+    if (!response.ok) {
+      console.error(`Nominatim error: ${response.status} ${response.statusText}`);
+      return res.status(response.status).json({ error: "Failed to fetch address from geocoder" });
+    }
+
     const data = await response.json();
     res.json(data);
   } catch (error) {
-    res.status(500).json({ error: "Failed to fetch location" });
+    console.error("Reverse geocoding error:", error);
+    res.status(500).json({ error: "Server error during reverse geocoding" });
   }
 });
 

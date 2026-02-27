@@ -13,32 +13,32 @@ const AdCarousel = () => {
   }, [images.length]);
 
   return (
-    <div className="w-full flex flex-col items-center overflow-hidden py-8 px-4 ">
+    <div className="w-full h-full flex flex-col items-center overflow-hidden py-2 px-2 md:py-4 md:px-4">
       {/* Image container with responsive size */}
-      <div className="w-full max-w-xl md:max-w-2xl lg:max-w-4xl aspect-[4/3] overflow-hidden rounded-xl shadow-lg">
+      <div className="w-full max-w-full md:max-w-4xl lg:max-w-6xl flex-1 overflow-hidden rounded-xl shadow-lg bg-gray-50 border border-blue-50">
         <div
-          className="flex transition-transform duration-700 ease-in-out"
+          className="flex h-full transition-transform duration-700 ease-in-out"
           style={{ transform: `translateX(-${currentIndex * 100}%)` }}
         >
           {images.map((src, index) => (
-            <img
-              key={index}
-              src={src}
-              alt={`Ad ${index + 1}`}
-              className="w-full object-cover flex-shrink-0"
-            />
+            <div key={index} className="w-full h-full flex-shrink-0">
+              <img
+                src={src}
+                alt={`Ad ${index + 1}`}
+                className="w-full h-full object-contain"
+              />
+            </div>
           ))}
         </div>
       </div>
 
       {/* Dot Indicators */}
-      <div className="flex gap-2 mt-4">
+      <div className="flex gap-2 mt-2 md:mt-4">
         {images.map((_, index) => (
           <span
             key={index}
-            className={`w-3 h-3 rounded-full transition-all duration-300 ${
-              currentIndex === index ? "bg-blue-600 scale-110" : "bg-gray-400"
-            }`}
+            className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${currentIndex === index ? "bg-blue-600 scale-110" : "bg-gray-300"
+              }`}
           ></span>
         ))}
       </div>
