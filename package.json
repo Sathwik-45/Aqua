@@ -1,18 +1,19 @@
 {
   "scripts": {
-    "start": "node server.js",
-    "dev": "concurrently \"npm run dev --prefix frontend\" \"cd backend && node --watch server.js\""
+    "start": "node backend/server.js",
+    "backend": "npm start",
+    "frontend": "npm run dev --prefix frontend",
+    "dev": "concurrently \"npm run frontend\" \"npm run backend\"",
+    "build": "npm run build --prefix frontend"
   },
   "dependencies": {
-    "@react-google-maps/api": "^2.20.7",
     "express": "^4.19.2",
     "jsonwebtoken": "^9.0.2",
-    "jwt-decode": "^4.0.0",
-    "leaflet": "^1.9.4",
-    "leaflet-defaulticon-compatibility": "^0.1.2",
     "razorpay": "^2.9.6",
-    "react-leaflet": "^5.0.0",
-    "sonner": "^2.0.7"
+    "bcryptjs": "^3.0.2",
+    "dotenv": "^17.2.0",
+    "mongoose": "^8.16.4",
+    "node-fetch": "^2.7.0"
   },
   "devDependencies": {
     "concurrently": "^9.2.1"
