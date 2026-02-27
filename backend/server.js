@@ -11,26 +11,25 @@ const Order = require("./models/order");
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Updated CORS configuration to allow multiple origins
+// 1. CORS MUST BE FIRST
+app.use(cors({
+  origin: true, // Reflects the request origin
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+}));
+
+// 2. Logging middleware to see requests
+app.use((req, res, next) => {
+  console.log(`🚀 ${req.method} ${req.url} from ${req.headers.origin}`);
+  next();
+});
+
+app.use(express.json());
+
 const allowedOrigins = [
   "http://localhost:5173",
   "https://aqua-umber.vercel.app",
 ];
-
-const corsOptions = {
-  origin: (origin, callback) => {
-    if (allowedOrigins.includes(origin) || !origin) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  methods: ["GET", "POST", "PUT", "OPTIONS"],
-  credentials: true,
-};
-
-app.use(cors(corsOptions));
-app.use(express.json());
 
 const mongoose = require("mongoose");
 const MONGO_URI = process.env.MONGO_URI;
@@ -56,8 +55,8 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
   const a =
     Math.sin(dLat / 2) ** 2 +
     Math.cos(toRadians(lat1)) *
-      Math.cos(toRadians(lat2)) *
-      Math.sin(dLon / 2) ** 2;
+    Math.cos(toRadians(lat2)) *
+    Math.sin(dLon / 2) ** 2;
 
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c;
@@ -120,67 +119,71 @@ app.get("/api/owners", async (req, res) => {
   const userLat = parseFloat(req.query.lat);
   const userLon = parseFloat(req.query.lon);
 
-  if (!userLat || !userLon) {
-    return res.status(400).json({ error: "Latitude and longitude required" });
-  }
-
   try {
     const owners = await Owner.find();
-    const nearbyOwners = [];
+    console.log(`Found ${owners.length} owners in DB`);
 
-    for (const owner of owners) {
-      const locationText = owner.location || owner.city || owner.address;
+    const processedOwners = await Promise.all(owners.map(async (owner) => {
+      let ownerLat = null;
+      let ownerLon = null;
 
-      console.log(`\n🔍 Checking owner: ${owner.shopName}`);
-      console.log(`📍 Location text: ${locationText}`);
-
-      // ✅ Nested try-catch to handle individual geocoding failures
-      try {
-        const geoRes = await fetch(
-          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-            locationText
-          )}`,
-          {
-            headers: {
-              "User-Agent": "my-app/1.0 (your_email@example.com)",
-            },
-          }
-        );
-
-        if (!geoRes.ok) {
-          console.log(`Nominatim API responded with status: ${geoRes.status}`);
-          continue;
-        }
-        
-        const geoData = await geoRes.json();
-
-        if (!geoData.length) {
-          console.log("❌ Location not found in geocoding.");
-          continue;
-        }
-
-        const ownerLat = parseFloat(geoData[0].lat);
-        const ownerLon = parseFloat(geoData[0].lon);
-
-        console.log(`🌍 Owner coordinates: lat=${ownerLat}, lon=${ownerLon}`);
-        console.log(`📌 User coordinates:  lat=${userLat}, lon=${userLon}`);
-
-        const distance = calculateDistance(userLat, userLon, ownerLat, ownerLon);
-        console.log(`📏 Distance from user: ${distance.toFixed(2)} km`);
-
-        if (distance <= 500) { 
-          console.log("✅ Within 10 km - Added to result\n");
-          nearbyOwners.push(owner);
-        } else {
-          console.log("🚫 Too far - Skipped\n");
-        }
-      } catch (geocodingError) {
-        console.error(`❗ Error geocoding location for owner ${owner.shopName}:`, geocodingError);
-        continue;
+      // 1. Try to get coordinates from location object if it exists
+      if (owner.location && typeof owner.location === 'object' && owner.location.latitude && owner.location.longitude) {
+        ownerLat = owner.location.latitude;
+        ownerLon = owner.location.longitude;
       }
-    }
 
-    res.json(nearbyOwners);
+      // 2. If no coordinates, try to geocode the location string or address
+      if (!ownerLat || !ownerLon) {
+        let locationText = "";
+        if (typeof owner.location === 'string') {
+          locationText = owner.location;
+        } else if (owner.address) {
+          locationText = owner.address;
+        }
+
+        if (locationText) {
+          try {
+            console.log(`🔍 Geocoding for ${owner.shopName}: ${locationText}`);
+            const geoRes = await fetch(
+              `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(locationText)}`,
+              { headers: { "User-Agent": "AquaApp/1.0" } }
+            );
+            if (geoRes.ok) {
+              const geoData = await geoRes.ok ? await geoRes.json() : [];
+              if (geoData.length > 0) {
+                ownerLat = parseFloat(geoData[0].lat);
+                ownerLon = parseFloat(geoData[0].lon);
+                console.log(`✅ Geocoded ${owner.shopName} to ${ownerLat}, ${ownerLon}`);
+              }
+            }
+          } catch (err) {
+            console.error(`❌ Geocoding failed for ${owner.shopName}:`, err.message);
+          }
+        }
+      }
+
+      // 3. Calculate distance if we have both sets of coordinates
+      let distance = null;
+      if (userLat && userLon && ownerLat && ownerLon) {
+        distance = calculateDistance(userLat, userLon, ownerLat, ownerLon);
+      }
+
+      return {
+        ...owner.toObject(),
+        distance: distance
+      };
+    }));
+
+    // The user wants ALL available water plants shown. 
+    // We'll sort them by distance (closest first) but keep those with unknown distance at the end.
+    const sortedOwners = processedOwners.sort((a, b) => {
+      if (a.distance === null) return 1;
+      if (b.distance === null) return -1;
+      return a.distance - b.distance;
+    });
+
+    res.json(sortedOwners);
   } catch (error) {
     console.error("❗ Error fetching owners:", error);
     res.status(500).json({ error: "Failed to fetch owners" });
