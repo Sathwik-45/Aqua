@@ -67,7 +67,11 @@ const HomePage = () => {
           console.error("Geolocation error:", error);
           setUserLocation("Location access denied");
         },
-        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+        {
+          enableHighAccuracy: false,
+          timeout: 15000,
+          maximumAge: 60000
+        }
       );
     } else {
       setUserLocation("Geolocation not supported");

@@ -40,7 +40,12 @@ mongoose
     useNewUrlParser: true,
     useUnifiedTopology: true,
   })
-  .then(() => console.log("✅ MongoDB connected"))
+  .then(() => {
+    console.log("✅ MongoDB connected");
+    if (!SECRET_KEY) {
+      console.warn("⚠️  WARNING: JWT_SECRET is not defined in environment variables. Login will fail!");
+    }
+  })
   .catch((err) => console.error("❌ MongoDB connection error:", err));
 
 const fetch = require("node-fetch");
@@ -395,8 +400,12 @@ app.post("/api/login", async (req, res) => {
       },
     });
   } catch (err) {
-    console.error("Login error:", err);
-    res.status(500).json({ message: "Server error" });
+    console.error("❌ Login error detailed:", {
+      message: err.message,
+      stack: err.stack,
+      phone: phone
+    });
+    res.status(500).json({ message: "Server error during login. Please contact support." });
   }
 });
 
