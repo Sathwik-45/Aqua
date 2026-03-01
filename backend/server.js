@@ -23,11 +23,17 @@ app.use(cors({
   origin: function (origin, callback) {
     // allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = "The CORS policy for this site does not allow access from the specified Origin.";
-      return callback(new Error(msg), false);
+
+    const isAllowed = allowedOrigins.indexOf(origin) !== -1 ||
+      origin.endsWith(".vercel.app") ||
+      origin.includes("localhost");
+
+    if (isAllowed) {
+      return callback(null, true);
+    } else {
+      console.warn(`🚫 CORS blocked origin: ${origin}`);
+      return callback(new Error("CORS policy blocked this origin"), false);
     }
-    return callback(null, true);
   },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
@@ -113,7 +119,7 @@ app.get("/reverse-geocode", async (req, res) => {
       `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1`,
       {
         headers: {
-          "User-Agent": "Aqua-Application/1.0 (https://aqua-2-ovd4.onrender.com; sathwik_project@example.com)",
+          "User-Agent": "PureDrop-App/1.1 (sathwik_project@example.com)",
           "Accept-Language": "en"
         },
       }
