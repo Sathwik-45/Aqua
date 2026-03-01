@@ -40,7 +40,7 @@ const Navbar = () => {
   }, []);
 
   return (
-   <nav className="bg-white shadow-md px-4 py-3 flex items-center justify-between relative z-50 h-16">
+    <nav className="bg-white shadow-md px-4 py-3 flex items-center justify-between relative z-50 h-16">
 
       {/* Left: Hamburger menu (mobile) */}
       <div className="md:hidden flex items-center space-x-3">
@@ -68,7 +68,7 @@ const Navbar = () => {
           <button
             onClick={() => {
               navigate("/profile");
-             
+
             }}
             className="flex items-center gap-1 text-blue-600 font-medium hover:text-blue-800 transition duration-200"
           >
@@ -88,7 +88,10 @@ const Navbar = () => {
       {/* Desktop Menu */}
       <ul className="hidden md:flex space-x-6 text-gray-700 font-medium ml-auto items-center">
         <li
-          onClick={() => navigate("/")}
+          onClick={() => {
+            const token = localStorage.getItem("token");
+            navigate(token ? "/Home" : "/");
+          }}
           className="hover:text-blue-600 cursor-pointer"
         >
           Home
@@ -100,16 +103,16 @@ const Navbar = () => {
 
         {isAuthenticated ? (
           <>
-           <li
-  onClick={() => {
-    navigate("/profile");
+            <li
+              onClick={() => {
+                navigate("/profile");
 
-  }}
-  className="flex items-center gap-1 text-blue-600 hover:text-blue-800 cursor-pointer transition duration-200"
->
-  <UserCircle className="w-6 h-6" />
-  <span className="hidden sm:inline">{username}</span>
-</li>
+              }}
+              className="flex items-center gap-1 text-blue-600 hover:text-blue-800 cursor-pointer transition duration-200"
+            >
+              <UserCircle className="w-6 h-6" />
+              <span className="hidden sm:inline">{username}</span>
+            </li>
 
             <li
               onClick={handleLogout}
@@ -131,11 +134,10 @@ const Navbar = () => {
 
       {/* Mobile Dropdown Menu */}
       <div
-        className={`absolute top-full left-0 w-full bg-white shadow-md z-40 md:hidden transition-all duration-300 ease-in-out ${
-          isOpen
+        className={`absolute top-full left-0 w-full bg-white shadow-md z-40 md:hidden transition-all duration-300 ease-in-out ${isOpen
             ? "opacity-100 translate-y-0"
             : "opacity-0 -translate-y-2 pointer-events-none"
-        }`}
+          }`}
       >
         <ul className="flex flex-col space-y-4 p-4 text-gray-700 font-medium">
           <li
