@@ -12,25 +12,34 @@ const Order = require("./models/order");
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// 1. CORS MUST BE FIRST
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://aqua-umber.vercel.app",
+  "https://puredrop-delivery.vercel.app",
+];
+
+// 1. CORS Configuration
 app.use(cors({
-  origin: true, // Reflects the request origin
+  origin: function (origin, callback) {
+    // allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = "The CORS policy for this site does not allow access from the specified Origin.";
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
 }));
 
-// 2. Logging middleware to see requests
+// 2. Logging and Body Parsing
 app.use((req, res, next) => {
   console.log(`🚀 ${req.method} ${req.url} from ${req.headers.origin}`);
   next();
 });
 
 app.use(express.json());
-
-const allowedOrigins = [
-  "http://localhost:5173",
-  "https://aqua-umber.vercel.app",
-];
 
 const mongoose = require("mongoose");
 const MONGO_URI = process.env.MONGO_URI;
