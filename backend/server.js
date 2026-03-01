@@ -71,17 +71,26 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
 app.get("/geocode", async (req, res) => {
   const { q } = req.query;
   try {
+    console.log(`🔍 Geocoding request for: ${q}`);
     const response = await fetch(
-      `https://nominatim.openstreetmap.org/search?format=json&q=${q}`,
+      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}`,
       {
         headers: {
-          "User-Agent": "your-app-name", // Nominatim requires UA
+          "User-Agent": "Aqua-Application/1.0 (https://aqua-2-ovd4.onrender.com; sathwik_project@example.com)",
         },
       }
     );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`❌ Nominatim Geocode Error: ${response.status} - ${errorText}`);
+      return res.status(response.status).json({ error: "Geocoding service rejected request" });
+    }
+
     const data = await response.json();
     res.json(data);
   } catch (err) {
+    console.error("❌ Geocode route error:", err);
     res.status(500).json({ error: "Failed to fetch location" });
   }
 });
@@ -90,25 +99,27 @@ app.get("/reverse-geocode", async (req, res) => {
   const { lat, lon } = req.query;
 
   try {
+    console.log(`🔍 Reverse geocoding request for: ${lat}, ${lon}`);
     const response = await fetch(
       `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1`,
       {
         headers: {
-          "User-Agent": "AquaApp/1.0 (sathwik_project@example.com)", // Improved UA
+          "User-Agent": "Aqua-Application/1.0 (https://aqua-2-ovd4.onrender.com; sathwik_project@example.com)",
           "Accept-Language": "en"
         },
       }
     );
 
     if (!response.ok) {
-      console.error(`Nominatim error: ${response.status} ${response.statusText}`);
-      return res.status(response.status).json({ error: "Failed to fetch address from geocoder" });
+      const errorText = await response.text();
+      console.error(`❌ Nominatim Reverse Geocode Error: ${response.status} - ${errorText}`);
+      return res.status(response.status).json({ error: "Reverse geocoding service rejected request" });
     }
 
     const data = await response.json();
     res.json(data);
   } catch (error) {
-    console.error("Reverse geocoding error:", error);
+    console.error("❌ Reverse geocoding route error:", error);
     res.status(500).json({ error: "Server error during reverse geocoding" });
   }
 });
@@ -161,15 +172,21 @@ app.get("/api/owners", async (req, res) => {
             console.log(`🔍 Geocoding for ${owner.shopName}: ${locationText}`);
             const geoRes = await fetch(
               `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(locationText)}`,
-              { headers: { "User-Agent": "AquaApp/1.0" } }
+              {
+                headers: {
+                  "User-Agent": "Aqua-Application/1.0 (https://aqua-2-ovd4.onrender.com; sathwik_project@example.com)"
+                }
+              }
             );
             if (geoRes.ok) {
-              const geoData = await geoRes.ok ? await geoRes.json() : [];
+              const geoData = await geoRes.json();
               if (geoData.length > 0) {
                 ownerLat = parseFloat(geoData[0].lat);
                 ownerLon = parseFloat(geoData[0].lon);
                 console.log(`✅ Geocoded ${owner.shopName} to ${ownerLat}, ${ownerLon}`);
               }
+            } else {
+              console.warn(`⚠️ Nominatim status for ${owner.shopName}: ${geoRes.status}`);
             }
           } catch (err) {
             console.error(`❌ Geocoding failed for ${owner.shopName}:`, err.message);
