@@ -6,20 +6,18 @@ import {
   FaMoneyBillWave,
   FaTruck,
 } from "react-icons/fa";
-const API_BASE = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
-  ? "http://localhost:5000" // Your local API endpoint
-  : "https://aqua-tml9.onrender.com";
+import API_BASE from "../apiConfig";
 
 const Myorders = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
 
-const fetchOrders = async () => {
-  try {
-    const phone = localStorage.getItem("phone");
-    const response = await fetch(
-      `${API_BASE}/api/orders?phone=${phone}`
-    );
+  const fetchOrders = async () => {
+    try {
+      const phone = localStorage.getItem("phone");
+      const response = await fetch(
+        `${API_BASE}/api/orders?phone=${phone}`
+      );
 
       if (!response.ok) throw new Error("Failed to fetch orders");
 
@@ -120,11 +118,10 @@ const fetchOrders = async () => {
                 </p>
                 <p className="flex items-center gap-2">
                   <span
-                    className={`inline-block px-2 py-1 text-white text-xs rounded-full font-semibold transition ${
-                      order.deliveryStatus === "Delivered"
+                    className={`inline-block px-2 py-1 text-white text-xs rounded-full font-semibold transition ${order.deliveryStatus === "Delivered"
                         ? "bg-green-600"
                         : "bg-yellow-500 animate-pulse"
-                    }`}
+                      }`}
                   >
                     {order.deliveryStatus || "Pending"}
                   </span>

@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Mail, Phone, MapPin, CalendarDays } from "lucide-react";
-const API_BASE = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
-  ? "http://localhost:5000" // Your local API endpoint
-  : "https://aqua-tml9.onrender.com";
+import API_BASE from "../apiConfig";
 const Profile = () => {
   const [user, setUser] = useState(null);
   const [editMode, setEditMode] = useState(false);

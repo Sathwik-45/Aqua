@@ -8,9 +8,7 @@ import {
 } from "react-leaflet";
 import { useLocation, useNavigate } from "react-router-dom";
 import "leaflet/dist/leaflet.css";
-const API_BASE = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
-  ? "http://localhost:5000" // Your local API endpoint
-  : "https://aqua-tml9.onrender.com";
+import API_BASE from "../apiConfig";
 
 
 const MapUpdater = ({ position }) => {

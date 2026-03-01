@@ -5,9 +5,7 @@ import { useLayoutEffect, useState } from "react";
 import { Pencil } from "lucide-react";
 
 import { Plus } from "lucide-react";
-const API_BASE = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
-  ? "http://localhost:5000" // Your local API endpoint
-  : "https://aqua-tml9.onrender.com";
+import API_BASE from "../apiConfig";
 
 const PaymentPage = () => {
   const [showAddressModal, setShowAddressModal] = useState(false);
@@ -68,8 +66,8 @@ const PaymentPage = () => {
       try {
         const response = await fetch(
           `${API_BASE}/api/orders/create`,
-        
-          
+
+
           {
             method: "POST",
             headers: {
@@ -464,11 +462,10 @@ const PaymentPage = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div
             onClick={() => setSelectedMethod("cod")}
-            className={`cursor-pointer p-4 rounded-xl border-2 transition-all duration-200 ${
-              selectedMethod === "cod"
+            className={`cursor-pointer p-4 rounded-xl border-2 transition-all duration-200 ${selectedMethod === "cod"
                 ? "border-blue-600 shadow-md bg-blue-50"
                 : "border-gray-200"
-            }`}
+              }`}
           >
             <h4 className="font-medium text-lg text-gray-800">
               Cash on Delivery
@@ -497,11 +494,10 @@ const PaymentPage = () => {
       <button
         onClick={handleConfirm}
         disabled={!deliveryAddress.trim()}
-        className={`w-full mt-4 py-2 rounded-lg transition-all duration-200 ${
-          deliveryAddress.trim()
+        className={`w-full mt-4 py-2 rounded-lg transition-all duration-200 ${deliveryAddress.trim()
             ? "bg-blue-600 text-white hover:bg-blue-700 cursor-pointer"
             : "bg-gray-300 text-gray-500 cursor-not-allowed"
-        }`}
+          }`}
       >
         Confirm Order
       </button>

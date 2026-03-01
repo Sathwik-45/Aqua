@@ -286,6 +286,12 @@ app.post("/api/register", async (req, res) => {
   const { name, phone, email, address, password, confirmPassword } = req.body;
 
   try {
+    // 0️⃣ Check database connection
+    if (mongoose.connection.readyState !== 1) {
+      console.error("❌ Database not connected while trying to register");
+      return res.status(503).json({ message: "Database connection is not ready" });
+    }
+
     // 1️⃣ Required fields
     if (
       !name ||
@@ -347,7 +353,7 @@ app.post("/api/register", async (req, res) => {
 
     await newUser.save();
 
-    console.log("User saved:", newUser);
+    console.log("✅ User registered successfully:", newUser.phone);
 
     res.status(201).json({
       message: "User registered successfully!",
@@ -359,8 +365,15 @@ app.post("/api/register", async (req, res) => {
       },
     });
   } catch (err) {
-    console.error("Error saving user:", err);
-    res.status(500).json({ error: "Registration failed" });
+    console.error("❌ Registration Error Details:", {
+      message: err.message,
+      stack: err.stack,
+      requestBody: { name, phone, email, address } // Exclude password for privacy
+    });
+    res.status(500).json({
+      error: "Registration failed",
+      details: err.message // Send message to frontend for easier debugging (can be removed later)
+    });
   }
 });
 

@@ -3,9 +3,7 @@ import Navbar from "./Navbar";
 import { FaSearch, FaStar, FaLocationArrow, FaUser } from "react-icons/fa";
 import { MapPin } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
-const API_BASE = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
-  ? "http://localhost:5000" // Your local API endpoint
-  : "https://aqua-tml9.onrender.com";
+import API_BASE from "../apiConfig";
 const HomePage = () => {
   const location = useLocation();
   const redirectedLat = location.state?.lat;
