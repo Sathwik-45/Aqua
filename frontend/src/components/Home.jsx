@@ -78,13 +78,13 @@ const HomePage = () => {
 
   // ✅ fetch shop data (no hooks inside)
   const fetchWaterPlantsFromBackend = useCallback(async () => {
-    if (!coordinates.lat || !coordinates.lon) return;
-
     setIsLoadingPlants(true);
     try {
-      const response = await fetch(
-        `${API_BASE}/api/owners?lat=${coordinates.lat}&lon=${coordinates.lon}`
-      );
+      const url = (coordinates.lat && coordinates.lon)
+        ? `${API_BASE}/api/owners?lat=${coordinates.lat}&lon=${coordinates.lon}`
+        : `${API_BASE}/api/owners`;
+
+      const response = await fetch(url);
       const data = await response.json();
       console.log("API Response:", data);
       const formattedData = data.map((owner) => ({
@@ -172,12 +172,12 @@ const HomePage = () => {
             <div className="text-center py-20">
               <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-2"></div>
               <p className="text-blue-500 font-semibold text-lg">
-                Finding nearby water plants...
+                {(coordinates.lat && coordinates.lon) ? "Finding nearby water plants..." : "Fetching all registered water plants..."}
               </p>
             </div>
           ) : filteredWaterPlants.length === 0 ? (
             <div className="text-center py-20 bg-white rounded-2xl shadow-sm border border-blue-100 mt-4">
-              <p className="text-gray-500 text-lg">No results found in your area.</p>
+              <p className="text-gray-500 text-lg">No water plants found.</p>
               <p className="text-gray-400 text-sm mt-1">Try searching for a different city or shop name.</p>
             </div>
           ) : (
